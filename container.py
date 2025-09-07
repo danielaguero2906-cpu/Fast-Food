@@ -1,66 +1,75 @@
-from tkinter import * 
-import tkinter as tk  
-from ventas import Ventas
-from inventario import Inventario 
-from clientes import Clientes     
-from proveedor import Proveedores   
+from tkinter import *
+import tkinter as tk
+from login import Ventas, Inventario, Clientes, AdminUsuarios 
 import sys
-import os 
+import os
 
-class Container(Frame):                                              
-    def __init__(self, padre, controlador):                                          # Constructor de la clase, recibe el contenedor padre y el controlador
-        super().__init__(padre)                          # Llama al constructor de la clase Frame con el padre
-        self.controlador = controlador                              # Guarda el controlador como atributo de instancia
-        self.place(x=0, y=0, width=1100, height=650)                        # Posiciona el frame en la ventana principal
-        self.widgets()    
-        self.frames = {}  
-        self.buttons = []                                       # Lista para almacenar referencias a los botones
+class Container(Frame):
+    def __init__(self, padre, controlador):
+        super().__init__(padre)
+        self.controlador = controlador
+        self.place(x=0, y=0, width=1100, height=650)
+        self.frames = {}
+        self.cargar_frames_por_rol()
+        self.widgets()
+        self.show_frames("Ventas")
 
-        for i in (Ventas, Inventario, Clientes, Pedidos, Proveedores):
-            frame = i(self)  
-            self.frames[i] = frame  # Almacena el frame en el diccionario con la clase como clave
-            frame.pack()  # (NO recomendable junto con place) Empaqueta el frame (se puede eliminar)
-            frame.config(bg="#C6D9E3", highlightbackground="gray", highlightthickness=1)  # Configura fondo y borde
-            frame.place(x=0, y=40, width=1100, height=610)  # Posiciona el frame justo debajo de los botones        
-        self.show_frames(Ventas) # Muestra el frame de Ventas por defecto al iniciar
+    def cargar_frames_por_rol(self):
+        ventas_frame = Ventas(self, self.controlador)
+        ventas_frame.place(x=0, y=40, width=1100, height=610)
+        self.frames["Ventas"] = ventas_frame
 
-    def show_frames(self, container):  # Método para mostrar un frame específico
-        frame = self.frames[container]  # Obtiene el frame desde el diccionario
-        frame.tkraise()  # Trae el frame al frente (hace visible el seleccionado)
+        # Clientes: admin, empleado y usuario
+        if self.controlador.usuario_rol in ("admin", "empleado", "usuario"):
+            clientes_frame = Clientes(self, self.controlador)
+            clientes_frame.place(x=0, y=40, width=1100, height=610)
+            self.frames["Clientes"] = clientes_frame
+            
+            inventario_frame = Inventario(self, self.controlador)
+            inventario_frame.place(x=0, y=40, width=1100, height=610)
+            self.frames["Inventario"] = inventario_frame
 
-    def ventas(self):
-        self.show_frames(Ventas)  # Muestra el frame de Ventas
+        # Solo admin tiene Administrar Usuarios
+        if self.controlador.usuario_rol == "admin":
+            admin_frame = AdminUsuarios(self, self.controlador)
+            admin_frame.place(x=0, y=40, width=1100, height=610)
+            self.frames["AdminUsuarios"] = admin_frame
 
-    def inventario(self):
-        self.show_frames(Inventario)  # Muestra el frame de Inventario
+    def show_frames(self, nombre_frame):
+        if nombre_frame in self.frames:
+            frame = self.frames[nombre_frame]
+            frame.tkraise()
+        else:
+            print(f"[WARN] El frame '{nombre_frame}' no existe para este rol.")
 
-    def clientes(self):
-        self.show_frames(Clientes)  # Muestra el frame de Clientes
+    def widgets(self):
+        barra = tk.Frame(self, bg="#f1f2f6")
+        barra.place(x=0, y=0, width=1100, height=40)
+        
+        for i in range(5):
+            barra.grid_columnconfigure(i, weight=1)
+        
+        # Botón Ventas (siempre visible)
+        self.btn_ventas = Button(barra, fg="black", text="Ventas", font="sans 14 bold",
+                                 command=lambda: self.show_frames("Ventas"))
+        self.btn_ventas.grid(row=0, column=0, sticky="nsew")
 
-    def pedidos(self):
-        self.show_frames(Pedidos)  # Muestra el frame de Pedidos
+        # Botón Administrar Usuarios (solo para 'admin')
+        if self.controlador.usuario_rol == "admin":
+            self.btn_admin = Button(barra, fg="black", text="Administrar Usuarios", font="sans 14 bold",
+                                     command=lambda: self.show_frames("AdminUsuarios"))
+            self.btn_admin.grid(row=0, column=2, sticky="nsew")
 
-    def proveedor(self):
-        self.show_frames(Proveedores)  # Muestra el frame de Proveedor  # Muestra el frame de Información
+        # Botón Clientes e Inventario(para 'admin', 'empleado' y 'usuario')
+        if self.controlador.usuario_rol in ("admin", "empleado", "usuario"):
+            self.btn_inventario = Button(barra, fg="black", text="Inventario", font="sans 14 bold",
+                                         command=lambda: self.show_frames("Inventario"))
+            self.btn_inventario.grid(row=0, column=1, sticky="nsew")
+            self.btn_clientes = Button(barra, fg="black", text="Clientes", font="sans 14 bold",
+                                         command=lambda: self.show_frames("Clientes"))
+            self.btn_clientes.grid(row=0, column=3, sticky="nsew")
 
-    def widgets(self):  # Método para crear los botones superiores de navegación
-        frame2 = tk.Frame(self)  # Crea un frame para contener los botones
-        frame2.place(x=0, y=0, width=1100, height=40)  # Posiciona el frame en la parte superior del contenedor
-
-        # Crea cada botón con texto, estilo y función asociada, y lo posiciona horizontalmente
-        self.btn_ventas = Button(frame2, fg="black", text="Ventas", font="sans 16 bold", command=self.ventas)
-        self.btn_ventas.place(x=0, y=0, width=184, height=40)
-
-        self.btn_inventario = Button(frame2, fg="black", text="Inventario", font="sans 16 bold", command=self.inventario)
-        self.btn_inventario.place(x=184, y=0, width=184, height=40)
-
-        self.btn_clientes = Button(frame2, fg="black", text="Clientes", font="sans 16 bold", command=self.clientes)
-        self.btn_clientes.place(x=369, y=0, width=184, height=40)
-
-        self.btn_pedidos = Button(frame2, fg="black", text="Pedidos", font="sans 16 bold", command=self.pedidos)
-        self.btn_pedidos.place(x=554, y=0, width=184, height=40)
-
-        self.btn_proveedor = Button(frame2, fg="black", text="Proveedor", font="sans 16 bold", command=self.proveedor)
-        self.btn_proveedor.place(x=739, y=0, width=184, height=40)
-
-        self.buttons = [self.btn_ventas, self.btn_inventario, self.btn_clientes, self.btn_pedidos, self.btn_proveedor]
+        # Botón Cerrar sesión 
+        self.btn_logout = Button(barra, fg="red", text="Cerrar Sesión", font="sans 14 bold",
+                                 command=lambda: self.controlador.logout())
+        self.btn_logout.grid(row=0, column=4, sticky="nsew")

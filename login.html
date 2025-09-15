@@ -9,13 +9,7 @@
 <tr class="heading-text decor">
 <td class="title">&nbsp;<br><strong class="title">login</strong></td>
 <td class="extra"><a href=".">index</a><br><a href="file:c%3A%5Cusers%5Cdanie%5Conedrive%5Cdocumentos%5Cproyecto%20fast%20food%20-%20git%5Clogin.py">c:\users\danie\onedrive\documentos\proyecto fast food - git\login.py</a></td></tr></table>
-    <p><span class="code">Módulo&nbsp;login<br>
-============<br>
-&nbsp;<br>
-Este&nbsp;módulo&nbsp;implementa&nbsp;la&nbsp;lógica&nbsp;principal&nbsp;de&nbsp;la&nbsp;aplicación&nbsp;FastFoodDB:<br>
--&nbsp;Conexión&nbsp;a&nbsp;la&nbsp;base&nbsp;de&nbsp;datos&nbsp;(SQL&nbsp;Server&nbsp;con&nbsp;pyodbc).<br>
--&nbsp;Manejo&nbsp;de&nbsp;usuarios&nbsp;(login,&nbsp;registro,&nbsp;administración,&nbsp;roles).<br>
--&nbsp;Interfaz&nbsp;gráfica&nbsp;con&nbsp;Tkinter&nbsp;y&nbsp;widgets&nbsp;personalizados.</span></p>
+    <p></p>
 <p>
 <table class="section">
 <tr class="decor pkg-content-decor heading-text">
@@ -24,11 +18,12 @@ Este&nbsp;módulo&nbsp;implementa&nbsp;la&nbsp;lógica&nbsp;principal&nbsp;de&nb
 <tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
 <td class="singlecolumn"><table><tr><td class="multicolumn"><a href="PIL.Image.html">PIL.Image</a><br>
 <a href="PIL.ImageTk.html">PIL.ImageTk</a><br>
-</td><td class="multicolumn"><a href="tkinter.messagebox.html">tkinter.messagebox</a><br>
-<a href="pyodbc.html">pyodbc</a><br>
-</td><td class="multicolumn"><a href="tkinter.simpledialog.html">tkinter.simpledialog</a><br>
-<a href="tkinter.html">tkinter</a><br>
-</td><td class="multicolumn"></td></tr></table></td></tr></table><p>
+</td><td class="multicolumn"><a href="bcrypt.html">bcrypt</a><br>
+<a href="tkinter.messagebox.html">tkinter.messagebox</a><br>
+</td><td class="multicolumn"><a href="pyodbc.html">pyodbc</a><br>
+<a href="tkinter.simpledialog.html">tkinter.simpledialog</a><br>
+</td><td class="multicolumn"><a href="tkinter.html">tkinter</a><br>
+</td></tr></table></td></tr></table><p>
 <table class="section">
 <tr class="decor index-decor heading-text">
 <td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Classes</strong></td></tr>
@@ -62,7 +57,7 @@ Este&nbsp;módulo&nbsp;implementa&nbsp;la&nbsp;lógica&nbsp;principal&nbsp;de&nb
 <tr><td class="decor title-decor" rowspan=2><span class="code">&nbsp;&nbsp;&nbsp;</span></td>
 <td class="decor title-decor" colspan=2><span class="code"><a href="#AdminUsuarios">AdminUsuarios</a>(parent,&nbsp;controlador)<br>
 &nbsp;<br>
-Pantalla&nbsp;de&nbsp;administración&nbsp;de&nbsp;usuarios&nbsp;para&nbsp;roles&nbsp;con&nbsp;permisos.<br>&nbsp;</span></td></tr>
+#&nbsp;Administración&nbsp;de&nbsp;Usuarios<br>&nbsp;</span></td></tr>
 <tr><td>&nbsp;</td>
 <td class="singlecolumn"><dl><dt>Method resolution order:</dt>
 <dd><a href="login.html#AdminUsuarios">AdminUsuarios</a></dd>
@@ -77,7 +72,7 @@ Pantalla&nbsp;de&nbsp;administración&nbsp;de&nbsp;usuarios&nbsp;para&nbsp;roles
 </dl>
 <hr>
 Methods defined here:<br>
-<dl><dt><a name="AdminUsuarios-__del__"><strong>__del__</strong></a>(self)</dt><dd><span class="code">Cierra&nbsp;la&nbsp;conexión&nbsp;a&nbsp;la&nbsp;base&nbsp;de&nbsp;datos&nbsp;al&nbsp;destruir&nbsp;el&nbsp;objeto.</span></dd></dl>
+<dl><dt><a name="AdminUsuarios-__del__"><strong>__del__</strong></a>(self)</dt></dl>
 
 <dl><dt><a name="AdminUsuarios-__init__"><strong>__init__</strong></a>(self, parent, controlador)</dt><dd><span class="code">Construct&nbsp;a&nbsp;frame&nbsp;widget&nbsp;with&nbsp;the&nbsp;parent&nbsp;MASTER.<br>
 &nbsp;<br>
@@ -85,19 +80,19 @@ Valid&nbsp;resource&nbsp;names:&nbsp;background,&nbsp;bd,&nbsp;bg,&nbsp;borderwi
 colormap,&nbsp;container,&nbsp;cursor,&nbsp;height,&nbsp;highlightbackground,<br>
 highlightcolor,&nbsp;highlightthickness,&nbsp;relief,&nbsp;takefocus,&nbsp;visual,&nbsp;width.</span></dd></dl>
 
-<dl><dt><a name="AdminUsuarios-asignar_rol"><strong>asignar_rol</strong></a>(self)</dt><dd><span class="code">Asigna&nbsp;un&nbsp;nuevo&nbsp;rol&nbsp;a&nbsp;un&nbsp;usuario&nbsp;seleccionado.</span></dd></dl>
+<dl><dt><a name="AdminUsuarios-asignar_rol"><strong>asignar_rol</strong></a>(self)</dt></dl>
 
-<dl><dt><a name="AdminUsuarios-borrar_usuario"><strong>borrar_usuario</strong></a>(self)</dt><dd><span class="code">Elimina&nbsp;el&nbsp;usuario&nbsp;seleccionado&nbsp;tras&nbsp;confirmación.</span></dd></dl>
+<dl><dt><a name="AdminUsuarios-borrar_usuario"><strong>borrar_usuario</strong></a>(self)</dt></dl>
 
-<dl><dt><a name="AdminUsuarios-cargar_usuarios"><strong>cargar_usuarios</strong></a>(self)</dt><dd><span class="code">Carga&nbsp;en&nbsp;pantalla&nbsp;la&nbsp;lista&nbsp;de&nbsp;usuarios&nbsp;desde&nbsp;la&nbsp;base&nbsp;de&nbsp;datos.</span></dd></dl>
+<dl><dt><a name="AdminUsuarios-cargar_usuarios"><strong>cargar_usuarios</strong></a>(self)</dt></dl>
 
-<dl><dt><a name="AdminUsuarios-cerrar_sesion"><strong>cerrar_sesion</strong></a>(self)</dt><dd><span class="code">Cierra&nbsp;la&nbsp;sesión&nbsp;actual&nbsp;y&nbsp;regresa&nbsp;al&nbsp;login.</span></dd></dl>
+<dl><dt><a name="AdminUsuarios-cerrar_sesion"><strong>cerrar_sesion</strong></a>(self)</dt></dl>
 
-<dl><dt><a name="AdminUsuarios-crear_usuario"><strong>crear_usuario</strong></a>(self)</dt><dd><span class="code">Solicita&nbsp;datos&nbsp;y&nbsp;crea&nbsp;un&nbsp;nuevo&nbsp;usuario.</span></dd></dl>
+<dl><dt><a name="AdminUsuarios-crear_usuario"><strong>crear_usuario</strong></a>(self)</dt></dl>
 
-<dl><dt><a name="AdminUsuarios-modificar_usuario"><strong>modificar_usuario</strong></a>(self)</dt><dd><span class="code">Permite&nbsp;editar&nbsp;los&nbsp;datos&nbsp;de&nbsp;un&nbsp;usuario&nbsp;existente.</span></dd></dl>
+<dl><dt><a name="AdminUsuarios-modificar_usuario"><strong>modificar_usuario</strong></a>(self)</dt></dl>
 
-<dl><dt><a name="AdminUsuarios-obtener_usuario_seleccionado"><strong>obtener_usuario_seleccionado</strong></a>(self)</dt><dd><span class="code">Retorna&nbsp;el&nbsp;ID&nbsp;del&nbsp;usuario&nbsp;seleccionado&nbsp;en&nbsp;la&nbsp;lista.</span></dd></dl>
+<dl><dt><a name="AdminUsuarios-obtener_usuario_seleccionado"><strong>obtener_usuario_seleccionado</strong></a>(self)</dt></dl>
 
 <hr>
 Methods inherited from <a href="tkinter.html#BaseWidget">tkinter.BaseWidget</a>:<br>
@@ -741,7 +736,7 @@ for&nbsp;positioning&nbsp;this&nbsp;widget&nbsp;in&nbsp;a&nbsp;grid.</span></dd>
 <tr><td class="decor title-decor" rowspan=2><span class="code">&nbsp;&nbsp;&nbsp;</span></td>
 <td class="decor title-decor" colspan=2><span class="code"><a href="#Clientes">Clientes</a>(parent,&nbsp;controlador)<br>
 &nbsp;<br>
-Módulo&nbsp;de&nbsp;clientes&nbsp;en&nbsp;la&nbsp;interfaz&nbsp;gráfica.<br>&nbsp;</span></td></tr>
+<br>&nbsp;</span></td></tr>
 <tr><td>&nbsp;</td>
 <td class="singlecolumn"><dl><dt>Method resolution order:</dt>
 <dd><a href="login.html#Clientes">Clientes</a></dd>
@@ -1404,7 +1399,7 @@ for&nbsp;positioning&nbsp;this&nbsp;widget&nbsp;in&nbsp;a&nbsp;grid.</span></dd>
 <tr><td class="decor title-decor" rowspan=2><span class="code">&nbsp;&nbsp;&nbsp;</span></td>
 <td class="decor title-decor" colspan=2><span class="code"><a href="#Inventario">Inventario</a>(parent,&nbsp;controlador)<br>
 &nbsp;<br>
-Módulo&nbsp;de&nbsp;inventario&nbsp;en&nbsp;la&nbsp;interfaz&nbsp;gráfica.<br>&nbsp;</span></td></tr>
+<br>&nbsp;</span></td></tr>
 <tr><td>&nbsp;</td>
 <td class="singlecolumn"><dl><dt>Method resolution order:</dt>
 <dd><a href="login.html#Inventario">Inventario</a></dd>
@@ -2067,8 +2062,9 @@ for&nbsp;positioning&nbsp;this&nbsp;widget&nbsp;in&nbsp;a&nbsp;grid.</span></dd>
 <tr><td class="decor title-decor" rowspan=2><span class="code">&nbsp;&nbsp;&nbsp;</span></td>
 <td class="decor title-decor" colspan=2><span class="code"><a href="#Login">Login</a>(parent,&nbsp;controlador)<br>
 &nbsp;<br>
-Pantalla&nbsp;de&nbsp;inicio&nbsp;de&nbsp;sesión.<br>
-Permite&nbsp;al&nbsp;usuario&nbsp;autenticarse&nbsp;o&nbsp;ir&nbsp;al&nbsp;registro.<br>&nbsp;</span></td></tr>
+<a href="tkinter.html#Frame">Frame</a>&nbsp;de&nbsp;inicio&nbsp;de&nbsp;sesión.<br>
+&nbsp;<br>
+Permite&nbsp;al&nbsp;usuario&nbsp;autenticarse&nbsp;y&nbsp;cargar&nbsp;el&nbsp;módulo&nbsp;correspondiente&nbsp;según&nbsp;su&nbsp;rol.<br>&nbsp;</span></td></tr>
 <tr><td>&nbsp;</td>
 <td class="singlecolumn"><dl><dt>Method resolution order:</dt>
 <dd><a href="login.html#Login">Login</a></dd>
@@ -2089,10 +2085,11 @@ Valid&nbsp;resource&nbsp;names:&nbsp;background,&nbsp;bd,&nbsp;bg,&nbsp;borderwi
 colormap,&nbsp;container,&nbsp;cursor,&nbsp;height,&nbsp;highlightbackground,<br>
 highlightcolor,&nbsp;highlightthickness,&nbsp;relief,&nbsp;takefocus,&nbsp;visual,&nbsp;width.</span></dd></dl>
 
-<dl><dt><a name="Login-ir_registro"><strong>ir_registro</strong></a>(self)</dt><dd><span class="code">Redirige&nbsp;a&nbsp;la&nbsp;pantalla&nbsp;de&nbsp;registro.</span></dd></dl>
+<dl><dt><a name="Login-ir_registro"><strong>ir_registro</strong></a>(self)</dt></dl>
 
-<dl><dt><a name="Login-login"><strong>login</strong></a>(self)</dt><dd><span class="code">Verifica&nbsp;las&nbsp;credenciales&nbsp;del&nbsp;usuario.<br>
-Si&nbsp;son&nbsp;correctas,&nbsp;guarda&nbsp;el&nbsp;rol&nbsp;y&nbsp;carga&nbsp;el&nbsp;container&nbsp;principal.</span></dd></dl>
+<dl><dt><a name="Login-login"><strong>login</strong></a>(self)</dt><dd><span class="code">Verifica&nbsp;las&nbsp;credenciales&nbsp;ingresadas&nbsp;y&nbsp;autentica&nbsp;al&nbsp;usuario.<br>
+&nbsp;<br>
+Muestra&nbsp;mensajes&nbsp;de&nbsp;error&nbsp;si&nbsp;los&nbsp;datos&nbsp;son&nbsp;incorrectos&nbsp;o&nbsp;la&nbsp;BD&nbsp;no&nbsp;responde.</span></dd></dl>
 
 <hr>
 Methods inherited from <a href="tkinter.html#BaseWidget">tkinter.BaseWidget</a>:<br>
@@ -2736,7 +2733,7 @@ for&nbsp;positioning&nbsp;this&nbsp;widget&nbsp;in&nbsp;a&nbsp;grid.</span></dd>
 <tr><td class="decor title-decor" rowspan=2><span class="code">&nbsp;&nbsp;&nbsp;</span></td>
 <td class="decor title-decor" colspan=2><span class="code"><a href="#Registro">Registro</a>(parent,&nbsp;controlador)<br>
 &nbsp;<br>
-Pantalla&nbsp;de&nbsp;registro&nbsp;de&nbsp;nuevos&nbsp;usuarios.<br>&nbsp;</span></td></tr>
+#&nbsp;<a href="#Registro">Registro</a><br>&nbsp;</span></td></tr>
 <tr><td>&nbsp;</td>
 <td class="singlecolumn"><dl><dt>Method resolution order:</dt>
 <dd><a href="login.html#Registro">Registro</a></dd>
@@ -2757,9 +2754,9 @@ Valid&nbsp;resource&nbsp;names:&nbsp;background,&nbsp;bd,&nbsp;bg,&nbsp;borderwi
 colormap,&nbsp;container,&nbsp;cursor,&nbsp;height,&nbsp;highlightbackground,<br>
 highlightcolor,&nbsp;highlightthickness,&nbsp;relief,&nbsp;takefocus,&nbsp;visual,&nbsp;width.</span></dd></dl>
 
-<dl><dt><a name="Registro-ir_login"><strong>ir_login</strong></a>(self)</dt><dd><span class="code">Redirige&nbsp;al&nbsp;login.</span></dd></dl>
+<dl><dt><a name="Registro-ir_login"><strong>ir_login</strong></a>(self)</dt></dl>
 
-<dl><dt><a name="Registro-registrar"><strong>registrar</strong></a>(self)</dt><dd><span class="code">Crea&nbsp;un&nbsp;nuevo&nbsp;usuario&nbsp;si&nbsp;los&nbsp;datos&nbsp;son&nbsp;válidos.</span></dd></dl>
+<dl><dt><a name="Registro-registrar"><strong>registrar</strong></a>(self)</dt></dl>
 
 <hr>
 Methods inherited from <a href="tkinter.html#BaseWidget">tkinter.BaseWidget</a>:<br>
@@ -3403,15 +3400,11 @@ for&nbsp;positioning&nbsp;this&nbsp;widget&nbsp;in&nbsp;a&nbsp;grid.</span></dd>
 <tr><td class="decor title-decor" rowspan=2><span class="code">&nbsp;&nbsp;&nbsp;</span></td>
 <td class="decor title-decor" colspan=2><span class="code"><a href="#RoundedEntry">RoundedEntry</a>(parent,&nbsp;placeholder='',&nbsp;is_password=False,&nbsp;width_px=360,&nbsp;height_px=44,&nbsp;radius=20)<br>
 &nbsp;<br>
-Campo&nbsp;de&nbsp;entrada&nbsp;personalizado&nbsp;con&nbsp;bordes&nbsp;redondeados&nbsp;y&nbsp;placeholder.<br>
+Entrada&nbsp;de&nbsp;texto&nbsp;personalizada&nbsp;con&nbsp;esquinas&nbsp;redondeadas&nbsp;y&nbsp;placeholder.<br>
 &nbsp;<br>
-Args:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;parent&nbsp;(tk.Widget):&nbsp;Contenedor&nbsp;padre.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;placeholder&nbsp;(str):&nbsp;Texto&nbsp;que&nbsp;aparece&nbsp;por&nbsp;defecto.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;is_password&nbsp;(bool):&nbsp;Si&nbsp;True,&nbsp;oculta&nbsp;caracteres&nbsp;con&nbsp;'*'.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;width_px&nbsp;(int):&nbsp;Ancho&nbsp;del&nbsp;campo.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;height_px&nbsp;(int):&nbsp;Alto&nbsp;del&nbsp;campo.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;radius&nbsp;(int):&nbsp;Radio&nbsp;de&nbsp;redondeo.<br>&nbsp;</span></td></tr>
+Attributes:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;placeholder&nbsp;(str):&nbsp;Texto&nbsp;que&nbsp;aparece&nbsp;cuando&nbsp;no&nbsp;hay&nbsp;input.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;is_password&nbsp;(bool):&nbsp;Indica&nbsp;si&nbsp;la&nbsp;entrada&nbsp;es&nbsp;de&nbsp;tipo&nbsp;contraseña.<br>&nbsp;</span></td></tr>
 <tr><td>&nbsp;</td>
 <td class="singlecolumn"><dl><dt>Method resolution order:</dt>
 <dd><a href="login.html#RoundedEntry">RoundedEntry</a></dd>
@@ -3426,18 +3419,22 @@ Args:<br>
 </dl>
 <hr>
 Methods defined here:<br>
-<dl><dt><a name="RoundedEntry-__init__"><strong>__init__</strong></a>(self, parent, placeholder='', is_password=False, width_px=360, height_px=44, radius=20)</dt><dd><span class="code">Construct&nbsp;a&nbsp;frame&nbsp;widget&nbsp;with&nbsp;the&nbsp;parent&nbsp;MASTER.<br>
+<dl><dt><a name="RoundedEntry-__init__"><strong>__init__</strong></a>(self, parent, placeholder='', is_password=False, width_px=360, height_px=44, radius=20)</dt><dd><span class="code">Inicializa&nbsp;la&nbsp;entrada&nbsp;redondeada.<br>
 &nbsp;<br>
-Valid&nbsp;resource&nbsp;names:&nbsp;background,&nbsp;bd,&nbsp;bg,&nbsp;borderwidth,&nbsp;class,<br>
-colormap,&nbsp;container,&nbsp;cursor,&nbsp;height,&nbsp;highlightbackground,<br>
-highlightcolor,&nbsp;highlightthickness,&nbsp;relief,&nbsp;takefocus,&nbsp;visual,&nbsp;width.</span></dd></dl>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;parent&nbsp;(tk.Widget):&nbsp;Widget&nbsp;padre.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;placeholder&nbsp;(str):&nbsp;Texto&nbsp;placeholder.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;is_password&nbsp;(bool):&nbsp;Mostrar&nbsp;caracteres&nbsp;ocultos.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;width_px&nbsp;(int):&nbsp;Ancho&nbsp;del&nbsp;widget.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;height_px&nbsp;(int):&nbsp;Alto&nbsp;del&nbsp;widget.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;radius&nbsp;(int):&nbsp;Radio&nbsp;de&nbsp;las&nbsp;esquinas.</span></dd></dl>
 
-<dl><dt><a name="RoundedEntry-clear"><strong>clear</strong></a>(self)</dt><dd><span class="code">Limpia&nbsp;el&nbsp;contenido&nbsp;del&nbsp;campo&nbsp;y&nbsp;restaura&nbsp;el&nbsp;placeholder.</span></dd></dl>
+<dl><dt><a name="RoundedEntry-clear"><strong>clear</strong></a>(self)</dt></dl>
 
-<dl><dt><a name="RoundedEntry-get"><strong>get</strong></a>(self)</dt><dd><span class="code">Retorna&nbsp;el&nbsp;texto&nbsp;del&nbsp;campo.<br>
+<dl><dt><a name="RoundedEntry-get"><strong>get</strong></a>(self)</dt><dd><span class="code">Obtiene&nbsp;el&nbsp;valor&nbsp;actual&nbsp;de&nbsp;la&nbsp;entrada.<br>
 &nbsp;<br>
 Returns:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;str:&nbsp;El&nbsp;contenido&nbsp;ingresado&nbsp;o&nbsp;""&nbsp;si&nbsp;solo&nbsp;tiene&nbsp;placeholder.</span></dd></dl>
+&nbsp;&nbsp;&nbsp;&nbsp;str:&nbsp;Valor&nbsp;de&nbsp;la&nbsp;entrada&nbsp;o&nbsp;vacío&nbsp;si&nbsp;es&nbsp;el&nbsp;placeholder.</span></dd></dl>
 
 <hr>
 Methods inherited from <a href="tkinter.html#BaseWidget">tkinter.BaseWidget</a>:<br>
@@ -4081,41 +4078,23 @@ for&nbsp;positioning&nbsp;this&nbsp;widget&nbsp;in&nbsp;a&nbsp;grid.</span></dd>
 <tr><td class="decor title-decor" rowspan=2><span class="code">&nbsp;&nbsp;&nbsp;</span></td>
 <td class="decor title-decor" colspan=2><span class="code"><a href="#UsuarioDAO">UsuarioDAO</a>(conn)<br>
 &nbsp;<br>
-Objeto&nbsp;de&nbsp;Acceso&nbsp;a&nbsp;Datos&nbsp;(DAO)&nbsp;para&nbsp;la&nbsp;tabla&nbsp;'usuarios'.<br>
-Se&nbsp;encarga&nbsp;de&nbsp;crear,&nbsp;modificar,&nbsp;eliminar&nbsp;y&nbsp;consultar&nbsp;usuarios.<br>&nbsp;</span></td></tr>
+Data&nbsp;Access&nbsp;Object&nbsp;para&nbsp;operaciones&nbsp;de&nbsp;usuarios&nbsp;en&nbsp;la&nbsp;base&nbsp;de&nbsp;datos.<br>&nbsp;</span></td></tr>
 <tr><td>&nbsp;</td>
 <td class="singlecolumn">Methods defined here:<br>
-<dl><dt><a name="UsuarioDAO-__init__"><strong>__init__</strong></a>(self, conn)</dt><dd><span class="code">Inicializa&nbsp;el&nbsp;DAO&nbsp;con&nbsp;una&nbsp;conexión&nbsp;activa.<br>
-&nbsp;<br>
-Args:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;conn&nbsp;(pyodbc.Connection):&nbsp;Conexión&nbsp;a&nbsp;la&nbsp;base&nbsp;de&nbsp;datos.</span></dd></dl>
+<dl><dt><a name="UsuarioDAO-__init__"><strong>__init__</strong></a>(self, conn)</dt><dd><span class="code">Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</span></dd></dl>
 
-<dl><dt><a name="UsuarioDAO-asignar_rol"><strong>asignar_rol</strong></a>(self, usuario_id, rol)</dt><dd><span class="code">Asigna&nbsp;un&nbsp;nuevo&nbsp;rol&nbsp;a&nbsp;un&nbsp;usuario.</span></dd></dl>
+<dl><dt><a name="UsuarioDAO-asignar_rol"><strong>asignar_rol</strong></a>(self, usuario_id, rol)</dt></dl>
 
-<dl><dt><a name="UsuarioDAO-borrar_usuario"><strong>borrar_usuario</strong></a>(self, usuario_id)</dt><dd><span class="code">Elimina&nbsp;un&nbsp;usuario&nbsp;de&nbsp;la&nbsp;base&nbsp;de&nbsp;datos&nbsp;por&nbsp;su&nbsp;ID.</span></dd></dl>
+<dl><dt><a name="UsuarioDAO-borrar_usuario"><strong>borrar_usuario</strong></a>(self, usuario_id)</dt></dl>
 
-<dl><dt><a name="UsuarioDAO-consultar_usuarios"><strong>consultar_usuarios</strong></a>(self)</dt><dd><span class="code">Devuelve&nbsp;todos&nbsp;los&nbsp;usuarios&nbsp;registrados.</span></dd></dl>
+<dl><dt><a name="UsuarioDAO-consultar_usuarios"><strong>consultar_usuarios</strong></a>(self)</dt><dd><span class="code">Consulta&nbsp;todos&nbsp;los&nbsp;usuarios&nbsp;registrados.<br>
+&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;list:&nbsp;Lista&nbsp;de&nbsp;tuplas&nbsp;con&nbsp;(id,&nbsp;usuario,&nbsp;rol)</span></dd></dl>
 
-<dl><dt><a name="UsuarioDAO-crear_usuario"><strong>crear_usuario</strong></a>(self, usuario, password, rol='usuario')</dt><dd><span class="code">Crea&nbsp;un&nbsp;nuevo&nbsp;usuario.<br>
-&nbsp;<br>
-Args:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;usuario&nbsp;(str):&nbsp;Nombre&nbsp;de&nbsp;usuario.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;password&nbsp;(str):&nbsp;Contraseña.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;rol&nbsp;(str):&nbsp;Rol&nbsp;(por&nbsp;defecto&nbsp;'usuario').<br>
-&nbsp;<br>
-Raises:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;ValueError:&nbsp;Si&nbsp;el&nbsp;usuario&nbsp;ya&nbsp;existe.</span></dd></dl>
+<dl><dt><a name="UsuarioDAO-crear_usuario"><strong>crear_usuario</strong></a>(self, usuario, password, rol='usuario')</dt></dl>
 
-<dl><dt><a name="UsuarioDAO-modificar_usuario"><strong>modificar_usuario</strong></a>(self, usuario_id, nuevo_usuario=None, nuevo_password=None, nuevo_rol=None)</dt><dd><span class="code">Modifica&nbsp;datos&nbsp;de&nbsp;un&nbsp;usuario&nbsp;existente.<br>
-&nbsp;<br>
-Args:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;usuario_id&nbsp;(int):&nbsp;ID&nbsp;del&nbsp;usuario.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;nuevo_usuario&nbsp;(str&nbsp;|&nbsp;None):&nbsp;Nuevo&nbsp;nombre&nbsp;de&nbsp;usuario.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;nuevo_password&nbsp;(str&nbsp;|&nbsp;None):&nbsp;Nueva&nbsp;contraseña.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;nuevo_rol&nbsp;(str&nbsp;|&nbsp;None):&nbsp;Nuevo&nbsp;rol.<br>
-&nbsp;<br>
-Raises:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;ValueError:&nbsp;Si&nbsp;no&nbsp;se&nbsp;especifica&nbsp;ningún&nbsp;campo&nbsp;para&nbsp;modificar.</span></dd></dl>
+<dl><dt><a name="UsuarioDAO-modificar_usuario"><strong>modificar_usuario</strong></a>(self, usuario_id, nuevo_usuario=None, nuevo_password=None, nuevo_rol=None)</dt></dl>
 
 <hr>
 Data descriptors defined here:<br>
@@ -4133,7 +4112,7 @@ Data descriptors defined here:<br>
 <tr><td class="decor title-decor" rowspan=2><span class="code">&nbsp;&nbsp;&nbsp;</span></td>
 <td class="decor title-decor" colspan=2><span class="code"><a href="#Ventas">Ventas</a>(parent,&nbsp;controlador)<br>
 &nbsp;<br>
-Módulo&nbsp;de&nbsp;ventas&nbsp;en&nbsp;la&nbsp;interfaz&nbsp;gráfica.<br>&nbsp;</span></td></tr>
+#&nbsp;----------&nbsp;Módulos&nbsp;de&nbsp;la&nbsp;app&nbsp;----------<br>&nbsp;</span></td></tr>
 <tr><td>&nbsp;</td>
 <td class="singlecolumn"><dl><dt>Method resolution order:</dt>
 <dd><a href="login.html#Ventas">Ventas</a></dd>
@@ -4794,20 +4773,27 @@ for&nbsp;positioning&nbsp;this&nbsp;widget&nbsp;in&nbsp;a&nbsp;grid.</span></dd>
 <td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Functions</strong></td></tr>
     
 <tr><td class="decor functions-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
-<td class="singlecolumn"><dl><dt><a name="-autenticar_usuario"><strong>autenticar_usuario</strong></a>(conn, usuario, password)</dt><dd><span class="code">Autentica&nbsp;un&nbsp;usuario&nbsp;en&nbsp;la&nbsp;base&nbsp;de&nbsp;datos.<br>
+<td class="singlecolumn"><dl><dt><a name="-autenticar_usuario"><strong>autenticar_usuario</strong></a>(conn, usuario, password)</dt><dd><span class="code">Retorna&nbsp;el&nbsp;rol&nbsp;del&nbsp;usuario&nbsp;si&nbsp;las&nbsp;credenciales&nbsp;son&nbsp;correctas.<br>
+Si&nbsp;no&nbsp;existe,&nbsp;retorna&nbsp;None.</span></dd></dl>
+ <dl><dt><a name="-conectar_db"><strong>conectar_db</strong></a>()</dt><dd><span class="code">Intenta&nbsp;establecer&nbsp;una&nbsp;conexión&nbsp;con&nbsp;la&nbsp;base&nbsp;de&nbsp;datos&nbsp;SQL&nbsp;Server.<br>
+&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pyodbc.Connection:&nbsp;Conexión&nbsp;a&nbsp;la&nbsp;base&nbsp;de&nbsp;datos&nbsp;si&nbsp;es&nbsp;exitosa.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;None:&nbsp;Si&nbsp;ocurre&nbsp;algún&nbsp;error&nbsp;al&nbsp;conectarse.</span></dd></dl>
+ <dl><dt><a name="-hash_password"><strong>hash_password</strong></a>(password: str) -&gt; str</dt><dd><span class="code">Genera&nbsp;un&nbsp;hash&nbsp;seguro&nbsp;para&nbsp;una&nbsp;contraseña&nbsp;usando&nbsp;bcrypt.<br>
 &nbsp;<br>
 Args:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;conn&nbsp;(pyodbc.Connection):&nbsp;Conexión&nbsp;a&nbsp;la&nbsp;base&nbsp;de&nbsp;datos.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;usuario&nbsp;(str):&nbsp;Nombre&nbsp;de&nbsp;usuario.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;password&nbsp;(str):&nbsp;Contraseña&nbsp;del&nbsp;usuario.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;password&nbsp;(str):&nbsp;Contraseña&nbsp;en&nbsp;texto&nbsp;plano.<br>
 &nbsp;<br>
 Returns:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;str&nbsp;|&nbsp;None:&nbsp;El&nbsp;rol&nbsp;del&nbsp;usuario&nbsp;en&nbsp;minúsculas&nbsp;si&nbsp;las&nbsp;credenciales&nbsp;son&nbsp;correctas.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;None&nbsp;si&nbsp;no&nbsp;se&nbsp;encuentra.</span></dd></dl>
- <dl><dt><a name="-conectar_db"><strong>conectar_db</strong></a>()</dt><dd><span class="code">Establece&nbsp;una&nbsp;conexión&nbsp;con&nbsp;la&nbsp;base&nbsp;de&nbsp;datos&nbsp;SQL&nbsp;Server.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;str:&nbsp;Contraseña&nbsp;hasheada.</span></dd></dl>
+ <dl><dt><a name="-verify_password"><strong>verify_password</strong></a>(password: str, hashed: str) -&gt; bool</dt><dd><span class="code">Verifica&nbsp;si&nbsp;una&nbsp;contraseña&nbsp;coincide&nbsp;con&nbsp;un&nbsp;hash&nbsp;almacenado.<br>
+&nbsp;<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;password&nbsp;(str):&nbsp;Contraseña&nbsp;en&nbsp;texto&nbsp;plano.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;hashed&nbsp;(str):&nbsp;Hash&nbsp;de&nbsp;la&nbsp;contraseña&nbsp;almacenado&nbsp;en&nbsp;la&nbsp;BD.<br>
 &nbsp;<br>
 Returns:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;pyodbc.Connection:&nbsp;Objeto&nbsp;de&nbsp;conexión&nbsp;si&nbsp;es&nbsp;exitosa.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;None:&nbsp;Si&nbsp;ocurre&nbsp;un&nbsp;error&nbsp;en&nbsp;la&nbsp;conexión.</span></dd></dl>
+&nbsp;&nbsp;&nbsp;&nbsp;bool:&nbsp;True&nbsp;si&nbsp;coincide,&nbsp;False&nbsp;en&nbsp;caso&nbsp;contrario.</span></dd></dl>
 </td></tr></table>
 </body></html>

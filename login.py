@@ -1,3 +1,4 @@
+import bcrypt
 import pyodbc
 import tkinter as tk
 from tkinter import messagebox, simpledialog
@@ -6,6 +7,13 @@ from PIL import Image, ImageTk
 
 # ---------- Conexión a la BD ----------
 def conectar_db():
+    """
+    Intenta establecer una conexión con la base de datos SQL Server.
+
+    Returns:
+        pyodbc.Connection: Conexión a la base de datos si es exitosa.
+        None: Si ocurre algún error al conectarse.
+    """
     try:
         conn = pyodbc.connect(
             "DRIVER={ODBC Driver 17 for SQL Server};"
@@ -17,11 +25,61 @@ def conectar_db():
     except Exception as e:
         messagebox.showerror("Error", f"No se pudo conectar a la base de datos:\n{e}")
         return None
+    
+    
+# ---------- Scripts para funcion de encriptacion de contraseñas  ----------
+def hash_password(password: str) -> str:
+    """
+    Genera un hash seguro para una contraseña usando bcrypt.
+
+    Args:
+        password (str): Contraseña en texto plano.
+
+    Returns:
+        str: Contraseña hasheada.
+    """
+    salt = bcrypt.gensalt(rounds=12)
+    hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
+    return hashed.decode('utf-8') 
+
+def verify_password(password: str, hashed: str) -> bool:
+    """
+    Verifica si una contraseña coincide con un hash almacenado.
+
+    Args:
+        password (str): Contraseña en texto plano.
+        hashed (str): Hash de la contraseña almacenado en la BD.
+
+    Returns:
+        bool: True si coincide, False en caso contrario.
+    """
+    try:
+        return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
+    except Exception:
+        return False
 
 
     #Diseño de la interfaz
 class RoundedEntry(tk.Frame):
+    """
+    Entrada de texto personalizada con esquinas redondeadas y placeholder.
+    
+    Attributes:
+        placeholder (str): Texto que aparece cuando no hay input.
+        is_password (bool): Indica si la entrada es de tipo contraseña.
+    """
     def __init__(self, parent, placeholder="", is_password=False, width_px=360, height_px=44, radius=20):
+        """
+        Inicializa la entrada redondeada.
+
+        Args:
+            parent (tk.Widget): Widget padre.
+            placeholder (str): Texto placeholder.
+            is_password (bool): Mostrar caracteres ocultos.
+            width_px (int): Ancho del widget.
+            height_px (int): Alto del widget.
+            radius (int): Radio de las esquinas.
+        """
         super().__init__(parent, bg="#ffffff")
         self.placeholder = placeholder
         self.is_password = is_password
@@ -70,6 +128,12 @@ class RoundedEntry(tk.Frame):
             self._has_placeholder = True
 
     def get(self):
+        """
+        Obtiene el valor actual de la entrada.
+
+        Returns:
+            str: Valor de la entrada o vacío si es el placeholder.
+        """
         return "" if self._has_placeholder else self.entry.get()
 
     def clear(self):
@@ -79,10 +143,19 @@ class RoundedEntry(tk.Frame):
 
 # ---------- Asignación de Roles----------
 class UsuarioDAO:
+    """
+    Data Access Object para operaciones de usuarios en la base de datos.
+    """
     def __init__(self, conn):
         self.conn = conn
 
     def consultar_usuarios(self):
+        """
+        Consulta todos los usuarios registrados.
+
+        Returns:
+            list: Lista de tuplas con (id, usuario, rol)
+        """
         cursor = self.conn.cursor()
         cursor.execute("SELECT id, usuario, rol FROM usuarios")
         return cursor.fetchall()
@@ -92,7 +165,8 @@ class UsuarioDAO:
         cursor.execute("SELECT COUNT(*) FROM usuarios WHERE usuario = ?", (usuario,))
         if cursor.fetchone()[0] > 0:
             raise ValueError("El usuario ya existe")
-        cursor.execute("INSERT INTO usuarios (usuario, password, rol) VALUES (?, ?, ?)", (usuario, password, rol))
+        hashed = hash_password(password)
+        cursor.execute("INSERT INTO usuarios (usuario, password, rol) VALUES (?, ?, ?)", (usuario, hashed, rol))
         self.conn.commit()
 
     def modificar_usuario(self, usuario_id, nuevo_usuario=None, nuevo_password=None, nuevo_rol=None):
@@ -104,7 +178,7 @@ class UsuarioDAO:
             valores.append(nuevo_usuario)
         if nuevo_password:
             campos.append("password = ?")
-            valores.append(nuevo_password)
+            valores.append(hash_password(nuevo_password))
         if nuevo_rol:
             campos.append("rol = ?")
             valores.append(nuevo_rol)
@@ -144,6 +218,11 @@ class Clientes(tk.Frame):
         
 # ---------- Login ----------
 class Login(tk.Frame):
+    """
+    Frame de inicio de sesión.
+    
+    Permite al usuario autenticarse y cargar el módulo correspondiente según su rol.
+    """
     def __init__(self, parent, controlador):
         super().__init__(parent, bg="#f5f6fa")
         self.controlador = controlador
@@ -174,6 +253,11 @@ class Login(tk.Frame):
                   command=self.ir_registro).pack(pady=6)
 
     def login(self):
+        """
+        Verifica las credenciales ingresadas y autentica al usuario.
+
+        Muestra mensajes de error si los datos son incorrectos o la BD no responde.
+        """
         usuario = self.user_input.get()
         password = self.pass_input.get()
         if not usuario or not password:
@@ -184,19 +268,28 @@ class Login(tk.Frame):
             return
         try:
             cursor = conn.cursor()
-            cursor.execute(
-                "SELECT id, rol FROM usuarios WHERE usuario = ? AND password = ?",
-                (usuario, password)
-            )
+            cursor.execute("SELECT id, password, rol FROM usuarios WHERE usuario = ?", (usuario,))
             row = cursor.fetchone()
             if row:
-                user_id, rol = row
-                print(f"[DEBUG] Valor de rol leído directamente de la base de datos: '{rol}'")
-                self.controlador.usuario = usuario
-                self.controlador.usuario_rol = rol.strip().lower()
-                print(f"[DEBUG] Rol normalizado para la aplicación: '{self.controlador.usuario_rol}'")
-                messagebox.showinfo("Login exitoso", f"¡Bienvenido {usuario}!")
-                self.controlador.cargar_container()
+                user_id, stored_pass, rol = row
+                
+                if stored_pass.startswith("$2b$") and verify_password(password, stored_pass):
+                    self.controlador.usuario = usuario
+                    self.controlador.usuario_rol = rol.strip().lower()
+                    messagebox.showinfo("Login exitoso", f"¡Bienvenido {usuario}!")
+                    self.controlador.cargar_container()
+
+                elif password == stored_pass:
+                    new_hash = hash_password(password)
+                    cursor.execute("UPDATE usuarios SET password = ? WHERE id = ?", (new_hash, user_id))
+                    conn.commit()
+                    self.controlador.usuario = usuario
+                    self.controlador.usuario_rol = rol.strip().lower()
+                    messagebox.showinfo("Login exitoso", f"¡Bienvenido {usuario}!")
+                    self.controlador.cargar_container()
+                
+                else:
+                   messagebox.showerror("Error", "Usuario o contraseña incorrectos.")
             else:
                 messagebox.showerror("Error", "Usuario o contraseña incorrectos.")
         except Exception as e:
@@ -259,7 +352,8 @@ class Registro(tk.Frame):
             if cursor.fetchone()[0] > 0:
                 messagebox.showerror("Error", "El usuario ya existe.")
                 return
-            cursor.execute("INSERT INTO usuarios (usuario, password, rol) VALUES (?, ?, ?)", (usuario, password, 'usuario'))
+            hashed = hash_password(password)
+            cursor.execute("INSERT INTO usuarios (usuario, password, rol) VALUES (?, ?, ?)", (usuario, hashed, 'usuario'))
             conn.commit()
             messagebox.showinfo("Registro exitoso", f"Usuario {usuario} registrado correctamente.")
             self.ir_login()
@@ -397,11 +491,13 @@ def autenticar_usuario(conn, usuario, password):
     cursor = conn.cursor()
     cursor.execute(
         "SELECT rol FROM usuarios WHERE usuario = ? AND password = ?",
-        (usuario, password)
+        (usuario,)
     )
     row = cursor.fetchone()
     if row:
-        return row[0].strip().lower()
+        stored_hash, rol = row[0]
+        if verify_password(password, stored_hash):
+            return rol.strip().lower()
     return None
 
 

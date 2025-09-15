@@ -1,75 +1,132 @@
+"""
+
+================
+
+Este módulo define la clase `Container`, que administra los diferentes
+frames (Ventas, Inventario, Clientes, AdminUsuarios) según el rol del usuario.
+
+Clases:
+    Container: Frame principal que contiene y organiza los módulos de la aplicación.
+"""
+
 from tkinter import *
+from login import Ventas, Inventario, Clientes, AdminUsuarios
 import tkinter as tk
-from login import Ventas, Inventario, Clientes, AdminUsuarios 
-import sys
-import os
+
 
 class Container(Frame):
+    """
+    Frame contenedor de los diferentes módulos de la aplicación.
+
+    Dependiendo del rol del usuario, carga y muestra:
+        - Ventas (todos los roles)
+        - Clientes e Inventario (roles: admin, empleado, usuario)
+        - AdminUsuarios (solo admin)
+    """
+
     def __init__(self, padre, controlador):
+        """
+        Inicializa el contenedor.
+
+        Args:
+            padre (tk.Tk | tk.Frame): Ventana o frame padre.
+            controlador (Manager): Instancia principal que maneja sesión y navegación.
+        """
         super().__init__(padre)
         self.controlador = controlador
-        self.place(x=0, y=0, width=1100, height=650)
         self.frames = {}
-        self.cargar_frames_por_rol()
+
+        # Crear barra de navegación y frames según rol
         self.widgets()
-        self.show_frames("Ventas")
+        self.cargar_frames_por_rol()
+
+        # Mostrar frame inicial
+        self.show_frame("Ventas")
 
     def cargar_frames_por_rol(self):
-        ventas_frame = Ventas(self, self.controlador)
-        ventas_frame.place(x=0, y=40, width=1100, height=610)
-        self.frames["Ventas"] = ventas_frame
+        """
+        Carga los frames disponibles según el rol del usuario.
 
-        # Clientes: admin, empleado y usuario
-        if self.controlador.usuario_rol in ("admin", "empleado", "usuario"):
-            clientes_frame = Clientes(self, self.controlador)
-            clientes_frame.place(x=0, y=40, width=1100, height=610)
-            self.frames["Clientes"] = clientes_frame
-            
-            inventario_frame = Inventario(self, self.controlador)
-            inventario_frame.place(x=0, y=40, width=1100, height=610)
-            self.frames["Inventario"] = inventario_frame
+        Roles y accesos:
+            - Todos: Ventas
+            - Admin, Empleado, Usuario: Clientes, Inventario
+            - Admin: AdminUsuarios
+        """
+        rol = self.controlador.usuario_rol
+        print(f"[DEBUG] Container se carga con rol: {rol}")
 
-        # Solo admin tiene Administrar Usuarios
-        if self.controlador.usuario_rol == "admin":
-            admin_frame = AdminUsuarios(self, self.controlador)
-            admin_frame.place(x=0, y=40, width=1100, height=610)
-            self.frames["AdminUsuarios"] = admin_frame
+        # Limpiar frames antiguos
+        for f in self.frames.values():
+            f.destroy()
+        self.frames.clear()
 
-    def show_frames(self, nombre_frame):
-        if nombre_frame in self.frames:
-            frame = self.frames[nombre_frame]
-            frame.tkraise()
+        # Todos los roles tienen Ventas
+        self.frames["Ventas"] = Ventas(self, self.controlador)
+        self.frames["Ventas"].place(x=0, y=40, width=1100, height=610)
+
+        # Clientes e Inventario
+        if rol in ("admin", "empleado", "usuario"):
+            self.frames["Clientes"] = Clientes(self, self.controlador)
+            self.frames["Clientes"].place(x=0, y=40, width=1100, height=610)
+
+            self.frames["Inventario"] = Inventario(self, self.controlador)
+            self.frames["Inventario"].place(x=0, y=40, width=1100, height=610)
+
+        # Admin Usuarios solo admin
+        if rol == "admin":
+            self.frames["AdminUsuarios"] = AdminUsuarios(self, self.controlador)
+            self.frames["AdminUsuarios"].place(x=0, y=40, width=1100, height=610)
+
+    def show_frame(self, nombre):
+        """
+        Muestra el frame indicado por nombre.
+
+        Args:
+            nombre (str): Nombre del frame a mostrar.
+        """
+        if nombre in self.frames:
+            self.frames[nombre].tkraise()
         else:
-            print(f"[WARN] El frame '{nombre_frame}' no existe para este rol.")
+            print(f"[WARN] El frame '{nombre}' no existe para este rol.")
 
     def widgets(self):
+        """
+        Crea la barra superior de navegación con botones dinámicos según el rol.
+
+        Botones:
+            - Ventas: todos los roles.
+            - Inventario, Clientes: admin, empleado, usuario.
+            - Administrar Usuarios: solo admin.
+            - Cerrar sesión: todos los roles.
+        """
         barra = tk.Frame(self, bg="#f1f2f6")
         barra.place(x=0, y=0, width=1100, height=40)
-        
+
+        rol = self.controlador.usuario_rol
+
         for i in range(5):
             barra.grid_columnconfigure(i, weight=1)
-        
-        # Botón Ventas (siempre visible)
-        self.btn_ventas = Button(barra, fg="black", text="Ventas", font="sans 14 bold",
-                                 command=lambda: self.show_frames("Ventas"))
-        self.btn_ventas.grid(row=0, column=0, sticky="nsew")
 
-        # Botón Administrar Usuarios (solo para 'admin')
-        if self.controlador.usuario_rol == "admin":
-            self.btn_admin = Button(barra, fg="black", text="Administrar Usuarios", font="sans 14 bold",
-                                     command=lambda: self.show_frames("AdminUsuarios"))
-            self.btn_admin.grid(row=0, column=2, sticky="nsew")
+        # Botón Ventas
+        Button(barra, text="Ventas", font="sans 14 bold",
+               command=lambda: self.show_frame("Ventas")).grid(row=0, column=0, sticky="nsew")
 
-        # Botón Clientes e Inventario(para 'admin', 'empleado' y 'usuario')
-        if self.controlador.usuario_rol in ("admin", "empleado", "usuario"):
-            self.btn_inventario = Button(barra, fg="black", text="Inventario", font="sans 14 bold",
-                                         command=lambda: self.show_frames("Inventario"))
-            self.btn_inventario.grid(row=0, column=1, sticky="nsew")
-            self.btn_clientes = Button(barra, fg="black", text="Clientes", font="sans 14 bold",
-                                         command=lambda: self.show_frames("Clientes"))
-            self.btn_clientes.grid(row=0, column=3, sticky="nsew")
+        # Botón Inventario
+        if rol in ("admin", "empleado", "usuario"):
+            Button(barra, text="Inventario", font="sans 14 bold",
+                   command=lambda: self.show_frame("Inventario")).grid(row=0, column=1, sticky="nsew")
 
-        # Botón Cerrar sesión 
-        self.btn_logout = Button(barra, fg="red", text="Cerrar Sesión", font="sans 14 bold",
-                                 command=lambda: self.controlador.logout())
-        self.btn_logout.grid(row=0, column=4, sticky="nsew")
+        # Botón Clientes
+        if rol in ("admin", "empleado", "usuario"):
+            Button(barra, text="Clientes", font="sans 14 bold",
+                   command=lambda: self.show_frame("Clientes")).grid(row=0, column=2, sticky="nsew")
+
+        # Botón AdminUsuarios
+        if rol == "admin":
+            Button(barra, text="Administrar Usuarios", font="sans 14 bold",
+                   command=lambda: self.show_frame("AdminUsuarios")).grid(row=0, column=3, sticky="nsew")
+
+        # Botón Cerrar sesión
+        Button(barra, text="Cerrar Sesión", fg="red", font="sans 14 bold",
+               command=self.controlador.logout).grid(row=0, column=4, sticky="nsew")
+

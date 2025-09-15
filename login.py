@@ -1,6 +1,8 @@
 import pyodbc
 import tkinter as tk
 from tkinter import messagebox, simpledialog
+from inventario import Inventario
+from PIL import Image, ImageTk  
 
 # ---------- Conexión a la BD ----------
 def conectar_db():
@@ -17,7 +19,7 @@ def conectar_db():
         return None
 
 
-# ---------- Entrada con borde redondeado ----------
+    #Diseño de la interfaz
 class RoundedEntry(tk.Frame):
     def __init__(self, parent, placeholder="", is_password=False, width_px=360, height_px=44, radius=20):
         super().__init__(parent, bg="#ffffff")
@@ -75,7 +77,7 @@ class RoundedEntry(tk.Frame):
         self._on_focus_out(None)
 
 
-# ---------- DAO Usuarios ----------
+# ---------- Asignación de Roles----------
 class UsuarioDAO:
     def __init__(self, conn):
         self.conn = conn
@@ -138,7 +140,8 @@ class Inventario(tk.Frame):
 class Clientes(tk.Frame):
     def __init__(self, parent, controlador):
         super().__init__(parent, bg="#fab1a0")
-        tk.Label(self, text="Módulo de Clientes", font=("Segoe UI", 20, "bold")).pack(pady=30)
+        tk.Label(self, text="Módulo de Clientes", font=("Segoe UI", 20, "bold")).pack(pady=30) 
+        
 # ---------- Login ----------
 class Login(tk.Frame):
     def __init__(self, parent, controlador):
@@ -190,7 +193,7 @@ class Login(tk.Frame):
                 user_id, rol = row
                 print(f"[DEBUG] Valor de rol leído directamente de la base de datos: '{rol}'")
                 self.controlador.usuario = usuario
-                self.controlador.usuario_rol = rol.strip().lower() # Normalizamos el rol
+                self.controlador.usuario_rol = rol.strip().lower()
                 print(f"[DEBUG] Rol normalizado para la aplicación: '{self.controlador.usuario_rol}'")
                 messagebox.showinfo("Login exitoso", f"¡Bienvenido {usuario}!")
                 self.controlador.cargar_container()
@@ -203,8 +206,8 @@ class Login(tk.Frame):
 
     def ir_registro(self):
         self.controlador.show_frame("Registro")
-
-# ---------- Registro ----------
+        
+# Registro 
 class Registro(tk.Frame):
     def __init__(self, parent, controlador):
         super().__init__(parent, bg="#f5f6fa")
@@ -269,7 +272,7 @@ class Registro(tk.Frame):
         self.controlador.show_frame("Login")
 
 
-# ---------- Administración de Usuarios ----------
+# Administración de Usuarios
 class AdminUsuarios(tk.Frame):
     def __init__(self, parent, controlador):
         super().__init__(parent, bg="#f5f6fa")
@@ -382,3 +385,24 @@ class AdminUsuarios(tk.Frame):
     def __del__(self):
         if self.conn:
             self.conn.close()
+            
+
+# Lógica independiente de autenticación
+
+def autenticar_usuario(conn, usuario, password):
+    """
+    Retorna el rol del usuario si las credenciales son correctas.
+    Si no existe, retorna None.
+    """
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT rol FROM usuarios WHERE usuario = ? AND password = ?",
+        (usuario, password)
+    )
+    row = cursor.fetchone()
+    if row:
+        return row[0].strip().lower()
+    return None
+
+
+    

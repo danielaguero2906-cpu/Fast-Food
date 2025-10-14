@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Documentación - clientes.py</title>
+<style>
+body { font-family: Arial, Helvetica, sans-serif; margin: 20px; color: #222; background: #fff; }
+h1 { font-size: 22px; margin-bottom: 8px; color: #003366; }
+h2 { font-size: 18px; margin-top: 14px; color: #004080; }
+h3 { font-size: 16px; margin-top: 12px; color: #00509E; }
+h4 { font-size: 15px; margin-top: 8px; color: #333; }
+pre { background: #f4f4f4; padding: 10px; border-radius: 6px; white-space: pre-wrap; }
+p { margin: 6px 0 12px 0; }
+</style>
+</head>
+<body>
+<h1>Documentación del módulo clientes.py</h1>
+<h4>Función: conectar_db</h4><pre>Establece la conexión con la base de datos SQL Server.
+
+Retorna:
+    pyodbc.Connection | None: Objeto de conexión a la base de datos si la conexión es exitosa.
+                             En caso de error, retorna None y muestra un mensaje en pantalla.</pre><h3>Clase: Clientes</h3><p>Interfaz gráfica para la gestión de clientes dentro del sistema FastFood.
+
+Permite registrar, modificar, eliminar y visualizar registros de clientes
+almacenados en la base de datos SQL Server.
+
+Atributos:
+    controlador: Referencia al controlador principal del sistema.
+    entries (dict): Diccionario que asocia los nombres de los campos con sus Entry correspondientes.
+    tre (ttk.Treeview): Tabla que muestra los registros de clientes.</p><h4>Función: __init__</h4><pre>Inicializa la ventana de gestión de clientes.
+
+Args:
+    parent (tk.Widget): Ventana o contenedor padre.
+    controlador: Controlador principal que maneja la navegación entre ventanas.</pre><h4>Función: estilos</h4><pre>Define los estilos visuales de la interfaz (colores, fuentes y apariencia de los componentes ttk).</pre><h4>Función: widgets</h4><pre>Crea y organiza todos los elementos gráficos (labels, entries, botones y tablas)
+que componen la interfaz de gestión de clientes.</pre><h4>Función: valider_campos</h4><pre>Verifica que todos los campos del formulario estén completos.
+
+Retorna:
+    bool: True si todos los campos están completos, False en caso contrario.</pre><h4>Función: registrar</h4><pre>Inserta un nuevo registro de cliente en la base de datos
+utilizando los valores de los campos del formulario.</pre><h4>Función: cargar_registros</h4><pre>Carga todos los clientes almacenados en la base de datos y los muestra en la tabla.</pre><h4>Función: limpiar_treeview</h4><pre>Elimina todos los elementos actuales del Treeview.</pre><h4>Función: limpiar_campos</h4><pre>Limpia los campos de entrada del formulario.</pre><h4>Función: cargar_campos_desde_tabla</h4><pre>Carga los datos del cliente seleccionado desde la tabla hacia los campos del formulario.
+
+Args:
+    event: Evento de doble clic sobre la tabla.</pre><h4>Función: modificar</h4><pre>Modifica la información de un cliente existente en la base de datos
+con los valores actuales de los campos del formulario.</pre><h4>Función: eliminar</h4><pre>Elimina un cliente seleccionado de la base de datos, previa confirmación del usuario.
+Si la tabla queda vacía, reinicia el contador de identidad (ID) a 0.</pre>
+</body>
+</html>

@@ -285,13 +285,24 @@ class Login(tk.Frame):
         
 # Registro 
 class Registro(tk.Frame):
+    """
+        Permite a un nuevo usuario registrarse en el sistema.
+
+        Muestra mensajes de error si los datos son incorrectos o la BD no responde.
+        """
     def __init__(self, parent, controlador):
+        """
+        Inicializa el formulario de registro.
+        """
         super().__init__(parent, bg="#f5f6fa")
         self.controlador = controlador
         self.place(x=0, y=0, width=1100, height=650)
         self._build()
 
     def _build(self):
+        """
+        Construye la interfaz gráfica del formulario de registro.
+        """
         card = tk.Frame(self, bg="#ffffff")
         card.place(relx=0.5, rely=0.5, anchor="center", width=620, height=520)
         tk.Label(card, text="Registro de Usuario", font=("Segoe UI", 26, "bold"),
@@ -317,6 +328,9 @@ class Registro(tk.Frame):
                   command=self.ir_login).pack(pady=6)
 
     def registrar(self):
+        """
+        Registra un nuevo usuario en la base de datos.
+        """
         usuario = self.user_input.get()
         password = self.pass_input.get()
         password2 = self.pass2_input.get()
@@ -352,6 +366,10 @@ class Registro(tk.Frame):
 # Administración de Usuarios
 class AdminUsuarios(tk.Frame):
     def __init__(self, parent, controlador):
+        """
+        Frame para la administración de usuarios.
+        Permite crear, modificar, asignar roles y borrar usuarios.
+        """
         super().__init__(parent, bg="#f5f6fa")
         self.controlador = controlador
         self.place(x=0, y=0, width=1100, height=650)
@@ -363,6 +381,7 @@ class AdminUsuarios(tk.Frame):
         self._build()
 
     def _build(self):
+        """"Construye la interfaz gráfica del frame de administración de usuarios."""
         tk.Label(self, text="Administrar Usuarios", font=("Segoe UI", 20, "bold"), bg="#f5f6fa").pack(pady=10)
         
         frame_filtro = tk.Frame(self, bg="#f5f6fa")
@@ -393,6 +412,9 @@ class AdminUsuarios(tk.Frame):
         self.cargar_usuarios()
         
     def filtrar_usuarios(self):
+        """
+        Filtra la lista de usuarios según el texto ingresado en el campo de búsqueda.
+        """
         filtro = self.entry_busqueda.get().strip().lower()
         self.listbox.delete(0, tk.END)
         try:
@@ -406,6 +428,9 @@ class AdminUsuarios(tk.Frame):
             messagebox.showerror("Error", f"No se pudo aplicar el filtro:\n{e}")
 
     def cargar_usuarios(self):
+        """
+        Carga todos los usuarios desde la base de datos y los muestra en la lista.
+        """
         self.listbox.delete(0, tk.END)
         try:
             usuarios = self.dao.consultar_usuarios()
@@ -415,6 +440,9 @@ class AdminUsuarios(tk.Frame):
             messagebox.showerror("Error", f"No se pudo cargar usuarios:\n{e}")
 
     def obtener_usuario_seleccionado(self):
+        """
+        Obtiene el ID del usuario seleccionado en la lista.
+        """
         seleccion = self.listbox.curselection()
         if not seleccion:
             messagebox.showwarning("Atención", "Selecciona un usuario primero")
@@ -423,6 +451,9 @@ class AdminUsuarios(tk.Frame):
         return int(texto.split(" - ")[0])
 
     def crear_usuario(self):
+        """
+        Crea un nuevo usuario solicitando datos mediante diálogos.
+        """
         usuario = simpledialog.askstring("Crear Usuario", "Nombre de usuario:")
         if not usuario:
             return
@@ -442,6 +473,10 @@ class AdminUsuarios(tk.Frame):
             messagebox.showerror("Error", f"No se pudo crear usuario:\n{e}")
 
     def modificar_usuario(self):
+        """
+        Modifica los datos de un usuario seleccionado.
+        Solicita nuevos datos mediante diálogos.
+        """
         usuario_id = self.obtener_usuario_seleccionado()
         if usuario_id is None:
             return
@@ -459,6 +494,10 @@ class AdminUsuarios(tk.Frame):
             messagebox.showerror("Error", f"No se pudo modificar usuario:\n{e}")
 
     def asignar_rol(self):
+        """
+        Asigna un nuevo rol a un usuario seleccionado.
+        Solicita el nuevo rol mediante un diálogo.
+        """
         usuario_id = self.obtener_usuario_seleccionado()
         if usuario_id is None:
             return
@@ -474,6 +513,9 @@ class AdminUsuarios(tk.Frame):
             messagebox.showerror("Error", f"No se pudo asignar rol:\n{e}")
 
     def borrar_usuario(self):
+        """
+        Borra un usuario seleccionado tras confirmar la acción.
+        """
         usuario_id = self.obtener_usuario_seleccionado()
         if usuario_id is None:
             return

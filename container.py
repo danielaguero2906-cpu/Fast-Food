@@ -144,6 +144,7 @@ class Container(Frame):
             
             
     def actualizar_clientes_en_ventas(self, event=None):
+        """ Refresca el listado de clientes en Ventas cuando se elimina uno desde Clientes."""
         frame_ventas = self.frames.get("Ventas")
         if frame_ventas and hasattr(frame_ventas, "cargar_clientes"):
             frame_ventas.cargar_clientes()

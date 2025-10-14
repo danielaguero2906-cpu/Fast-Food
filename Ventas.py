@@ -12,6 +12,13 @@ import os
 import sys
 
 def conectar_db():
+    """
+    Establece la conexión con la base de datos SQL Server.
+
+    Retorna:
+        pyodbc.Connection | None: Objeto de conexión a la base de datos si la conexión es exitosa.
+                                 En caso de error, retorna None y muestra un mensaje en pantalla.
+    """
     try:
         conn = pyodbc.connect(
             "DRIVER={ODBC Driver 17 for SQL Server};"
@@ -25,7 +32,13 @@ def conectar_db():
         return None
 
 class MetodoPagoFrame(tk.Toplevel):
+    """
+    Ventana para seleccionar el método de pago y confirmar la venta.
+    """
     def __init__(self, parent, total_venta):
+        """
+        Inicializa la ventana de selección de método de pago.
+        """
         super().__init__(parent)
         self.title("Seleccionar método de pago")
         self.geometry("400x300")
@@ -46,6 +59,13 @@ class MetodoPagoFrame(tk.Toplevel):
         tk.Button(self, text="Cancelar", command=self.destroy, font=("Arial", 12, "bold")).pack()
 
     def confirmar(self):
+        """
+        Confirma la selección del método de pago y abre la ventana de pago.
+
+        Args:
+            parent (tk.Tk): Ventana principal que invoca esta ventana.
+            total_venta (float): Monto total de la venta antes de aplicar comisiones.
+        """
         metodo = self.metodo.get()
         total_final = self.total_venta
 
@@ -57,6 +77,9 @@ class MetodoPagoFrame(tk.Toplevel):
         
 class VentanaPago(tk.Toplevel):
     def __init__(self, parent, metodo, total_final):
+        """
+        Ventana para ingresar el monto abonado por el cliente y confirmar el pago.
+        """
         super().__init__(parent)
         self.title("Pago del Cliente")
         self.geometry("400x300")
@@ -76,6 +99,9 @@ class VentanaPago(tk.Toplevel):
         tk.Button(self, text="Cancelar", command=self.destroy, font=("Arial", 12, "bold")).pack()
 
     def confirmar_pago(self):
+        """
+        Confirma el pago ingresado por el cliente y procesa la venta.
+        """
         try:
             monto_abonado = float(self.entry_monto.get())
         except ValueError:
@@ -94,6 +120,9 @@ class VentanaPago(tk.Toplevel):
 
 class Ventas(tk.Frame):
     def __init__(self,padre, controlador):
+        """
+        Frame principal para gestionar las ventas, incluyendo selección de cliente, producto y método de pago.
+        """
         super().__init__(padre)
         self.controlador = controlador
         self.padre = padre
@@ -111,6 +140,9 @@ class Ventas(tk.Frame):
         self.master.bind("<<ActualizarInventario>>", lambda e: self.cargar_productos())
         
     def obtener_numero_factura_actual(self):
+        """
+        Obtiene el número de factura actual desde la base de datos y lo incrementa en 1.
+        """
         try:
             conn = conectar_db()
             c = conn.cursor()
@@ -123,12 +155,18 @@ class Ventas(tk.Frame):
             return 1
             
     def filtrar_clientes(self, event):
+        """
+        Filtra la lista de clientes en el Combobox basado en la entrada del usuario.
+        """
         if self.timer_cliente:
             self.timer_cliente.cancel()
         self.timer_cliente = threading.Timer(0.5, self._filter_clientes)
         self.timer_cliente.start()
         
     def _filter_clientes(self): 
+        """
+        Función interna para filtrar clientes en el Combobox.
+        """
         typed = self.entry_cliente.get()
         
         if typed == '':
@@ -144,6 +182,9 @@ class Ventas(tk.Frame):
             self.entry_cliente['values'] = []
        
     def cargar_productos(self):
+        """
+        Carga la lista de productos desde la base de datos y los asigna al Combobox de productos.
+        """
         try:
             conn = conectar_db()
             if not conn: return
@@ -156,12 +197,18 @@ class Ventas(tk.Frame):
             print("Error cargando productos: ", e)
             
     def filtrar_productos(self, event):
+        """
+        Filtra la lista de productos en el Combobox basado en la entrada del usuario.
+        """
         if self.timer_producto:
             self.timer_producto.cancel()
         self.timer_producto = threading.Timer(0.5, self._filter_products)
         self.timer_producto.start()
         
     def _filter_products(self): 
+        """
+        Función interna para filtrar productos en el Combobox.
+        """
         typed = self.entry_producto.get()
         
         if typed == '':
@@ -179,6 +226,8 @@ class Ventas(tk.Frame):
             self.entry_producto.delete(0, tk.END)
             
     def agregar_articulo(self):
+        """ Agrega un artículo a la lista de productos seleccionados para la venta.
+        """
         cliente = self.entry_cliente.get()
         producto = self.entry_producto.get()
         cantidad = self.entry_cantidad.get()
@@ -246,11 +295,15 @@ class Ventas(tk.Frame):
             print("Error al agregar articulo", e)
         
     def calcular_precio_total(self):
+        """ Calcula el precio total de los productos seleccionados y actualiza la etiqueta correspondiente.
+        """
         total_pagar = sum(float(str(self.tre.item(item)["values"][-1]).replace(" ", "").replace(",", "")) for item in self.tre.get_children())
         total_pagar_cop = "{:,.0f}".format(total_pagar)
         self.label_precio_total.config(text=f"Precio a Pagar: $ {total_pagar_cop}")
     
     def actualizar_stock(self, event=None):
+        """ Actualiza la etiqueta de stock según el producto seleccionado.
+        """
         producto_seleccionado = self.entry_producto.get()
         print("Actualizando stock para:", producto_seleccionado)
         
@@ -271,6 +324,8 @@ class Ventas(tk.Frame):
             print("Error al obtener el stock del producto: ", e)
     
     def realizar_pago(self):
+        """ Inicia el proceso de pago mostrando la ventana de selección de método de pago.
+        """
         if not self.tre.get_children():
             messagebox.showerror("Error", "No hay productos seleccionados para realizar el pago.")
             return
@@ -283,6 +338,8 @@ class Ventas(tk.Frame):
         MetodoPagoFrame(self, total_venta)
         
     def registrar_pago(self, metodo, total_final):
+        """ Registra el pago y procesa la venta.
+        """
         try:
             self.procesar_pago(total_final, VentanaPago, total_final)
             messagebox.showinfo("Venta registrada", f"Pago con {metodo}\nTotal cobrado: {total_final:.2f} Gs")
@@ -291,6 +348,8 @@ class Ventas(tk.Frame):
             messagebox.showerror("Error", f"No se pudo registrar la venta:\n{e}")
             
     def procesar_pago(self, cantidad_pagada, ventana_pago, total_venta):
+        """ Procesa el pago, registra la venta en la base de datos y genera la factura en PDF.
+        """
         cantidad_pagada = float(cantidad_pagada)
         
         if cantidad_pagada < total_venta:
@@ -334,6 +393,8 @@ class Ventas(tk.Frame):
             ventana_pago.destroy()
         
     def limpiar_campos(self):
+        """ Limpia los campos de entrada y resetea la interfaz para una nueva venta.
+        """
         for item in self.tre.get_children():
             self.tre.delete(item)
         self.label_precio_total.config(text="Precio a pagar: $ 0")
@@ -342,11 +403,15 @@ class Ventas(tk.Frame):
         self.entry_cantidad.delete(0, 'end')
         
     def limpiar_lista(self):
+        """ Limpia la lista de productos seleccionados.
+        """
         self.tre.delete(*self.tre.get_children())
         self.productos_seleccionados.clear()
         self.calcular_precio_total()
         
     def eliminar_articulo(self):
+        """ Elimina el artículo seleccionado de la lista de productos.
+        """
         item_seleccionado = self.tre.selection()
         if not item_seleccionado:
             messagebox.showerror("Error", "No hay ningun articulo seleccionado")
@@ -362,6 +427,8 @@ class Ventas(tk.Frame):
         self.calcular_precio_total()
         
     def editar_articulo(self):
+        """ Permite editar la cantidad de un artículo seleccionado en la lista.
+        """
         selected_item = self.tre.selection()
         if not selected_item:
             messagebox.showerror("Error", "Por favor seleccione un articulo para editar")
@@ -409,6 +476,8 @@ class Ventas(tk.Frame):
                 print("Error al editar el articulo: ",e)    
     
     def ver_ventas_realizadas(self):
+        """ Abre una ventana que muestra todas las ventas realizadas en un Treeview.
+        """
         try:
             # Crear ventana primero
             ventana_ventas = tk.Toplevel(self)
@@ -504,6 +573,8 @@ class Ventas(tk.Frame):
             messagebox.showerror("Error", f"Error al obtener las ventas: {e}")
 
     def generar_factura_pdf(self, total_venta, cliente):
+        """ Genera una factura en formato PDF con los detalles de la venta.
+        """
         try:
             os.makedirs("facturas", exist_ok=True)
             factura_path = os.path.join("facturas", f"Factura_{self.numero_factura}.pdf")
@@ -575,6 +646,9 @@ class Ventas(tk.Frame):
             messagebox.showerror("Error", f"No se pudo generar la factura: {e}")
     
     def widgets(self):
+       """
+         Crea y posiciona los widgets en el frame de ventas.
+        """
        labelframe = tk.LabelFrame(self, font="arial 12 bold", bg="#2196F3")
        labelframe.place(x=25, y=30, width=1045, height=180)
        
@@ -699,6 +773,8 @@ class Ventas(tk.Frame):
         self.entry_producto.focus()
 
     def alta_rapida_cliente(self, nombre_inicial=""):
+        """ Abre una ventana emergente para dar de alta un nuevo cliente rápidamente.
+        """
         popup = tk.Toplevel(self)
         popup.title("Alta rápida de cliente")
         popup.geometry("350x150")
@@ -715,6 +791,8 @@ class Ventas(tk.Frame):
         telefono_entry.grid(row=1, column=1, padx=10, pady=10)
 
         def guardar_cliente():
+            """ Guarda el nuevo cliente en la base de datos.
+            """
             nombre = nombre_entry.get().strip()
             celular = telefono_entry.get().strip()
 
@@ -763,6 +841,8 @@ class Ventas(tk.Frame):
             messagebox.showerror("Error", f"No se pudieron cargar los clientes:\n{e}")
                 
     def finalizar_venta(self):
+        """ Finaliza la venta, genera la factura y limpia los campos para una nueva venta.
+        """
         self.generar_factura_pdf()  # genera factura
         self.cargar_clientes()   # refresca clientes
         self.productos_seleccionados.clear()

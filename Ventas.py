@@ -92,7 +92,6 @@ class VentanaPago(tk.Toplevel):
         # Llamar al registro de venta
         self.parent.procesar_pago(monto_abonado, self, self.total_final)
 
-
 class Ventas(tk.Frame):
     def __init__(self,padre, controlador):
         super().__init__(padre)
@@ -333,7 +332,6 @@ class Ventas(tk.Frame):
 
         if ventana_pago:
             ventana_pago.destroy()
-
         
     def limpiar_campos(self):
         for item in self.tre.get_children():
@@ -737,6 +735,8 @@ class Ventas(tk.Frame):
                 messagebox.showinfo("Éxito", f"Cliente '{nombre}' creado.")
                 popup.destroy()
                 
+                self.clientes.append(nombre)
+                self.entry_cliente['values'] = self.clientes
                 self.entry_cliente.set(nombre)
                 
                 # Notificar al contenedor que se agregó un cliente nuevo
@@ -758,13 +758,12 @@ class Ventas(tk.Frame):
             conn.close()
 
             self.clientes = nombres
-            self.entry_cliente['values'] = nombres  
+            self.entry_cliente['values'] = self.clientes  
         except Exception as e:
             messagebox.showerror("Error", f"No se pudieron cargar los clientes:\n{e}")
                 
     def finalizar_venta(self):
-        # ...guardar venta en DB
-        self.generar_factura()  # genera factura
+        self.generar_factura_pdf()  # genera factura
         self.cargar_clientes()   # refresca clientes
         self.productos_seleccionados.clear()
         self.limpiar_treeview()

@@ -777,14 +777,12 @@ class Ventas(tk.Frame):
                 self.cargar_clientes()
                 self.entry_cliente.set(nombre)
                 
-                container = self.controlador.frames.get("Container")
-                if container and "Clientes" in container.frames:
-                    frame_clientes = container.frames["Clientes"]
-                    if hasattr(frame_clientes, "cargar_registros"):
-                        frame_clientes.cargar_registros()            
+                # Notificar al contenedor que se agregó un cliente nuevo
+                self.master.event_generate("<<ClienteAgregado>>", when="tail")
                 
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo crear el cliente:\n{e}")
+
 
         tk.Button(popup, text="Guardar", command=guardar_cliente).grid(row=2, column=0, columnspan=2, pady=10)
         nombre_entry.focus()

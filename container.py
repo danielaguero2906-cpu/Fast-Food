@@ -43,7 +43,7 @@ class Container(Frame):
         self.widgets()
         self.cargar_frames_por_rol()
         self.show_frame("Ventas")
-        self.bind("<<ClienteAgregado>>", lambda e: self.cargar_clientes())
+        self.bind("<<ClienteAgregado>>", self.actualizar_clientes)
 
     def cargar_frames_por_rol(self):
         """
@@ -131,4 +131,15 @@ class Container(Frame):
         # Botón Cerrar sesión
         Button(barra, text="Cerrar Sesión", fg="red", font="sans 14 bold",
                command=self.controlador.logout).grid(row=0, column=4, sticky="nsew")
+    
+    def actualizar_clientes(self, event=None):
+        """Refresca el listado de clientes cuando se agrega uno nuevo desde Ventas."""
+        print("Evento <<ClienteAgregado>> recibido")  # Debug opcional
+
+        frame_clientes = self.frames.get("Clientes")
+        if frame_clientes and hasattr(frame_clientes, "cargar_registros"):
+            frame_clientes.cargar_registros()
+            print("[INFO] Lista de clientes actualizada correctamente.")
+
+
 

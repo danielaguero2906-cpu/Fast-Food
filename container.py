@@ -10,7 +10,11 @@ Clases:
 """
 
 from tkinter import *
-from login import Ventas, Inventario, Clientes, AdminUsuarios
+from login import  AdminUsuarios
+from Ventas import Ventas
+from inventario import Inventario
+from clientes import Clientes
+from tkinter import messagebox
 import tkinter as tk
 
 
@@ -36,12 +40,10 @@ class Container(Frame):
         self.controlador = controlador
         self.frames = {}
 
-        # Crear barra de navegación y frames según rol
         self.widgets()
         self.cargar_frames_por_rol()
-
-        # Mostrar frame inicial
         self.show_frame("Ventas")
+        self.bind("<<ClienteAgregado>>", lambda e: self.cargar_clientes())
 
     def cargar_frames_por_rol(self):
         """
@@ -60,22 +62,21 @@ class Container(Frame):
             f.destroy()
         self.frames.clear()
 
-        # Todos los roles tienen Ventas
+        # Todos los roles tienen Ventas y Clientes
         self.frames["Ventas"] = Ventas(self, self.controlador)
         self.frames["Ventas"].place(x=0, y=40, width=1100, height=610)
 
-        # Clientes e Inventario
         if rol in ("admin", "empleado", "usuario"):
             self.frames["Clientes"] = Clientes(self, self.controlador)
             self.frames["Clientes"].place(x=0, y=40, width=1100, height=610)
 
-            self.frames["Inventario"] = Inventario(self, self.controlador)
-            self.frames["Inventario"].place(x=0, y=40, width=1100, height=610)
-
-        # Admin Usuarios solo admin
+        # Admin Usuarios e Inventario solo admin
         if rol == "admin":
             self.frames["AdminUsuarios"] = AdminUsuarios(self, self.controlador)
             self.frames["AdminUsuarios"].place(x=0, y=40, width=1100, height=610)
+            
+            self.frames["Inventario"] = Inventario(self, self.controlador)
+            self.frames["Inventario"].place(x=0, y=40, width=1100, height=610)
 
     def show_frame(self, nombre):
         """
@@ -88,6 +89,7 @@ class Container(Frame):
             self.frames[nombre].tkraise()
         else:
             print(f"[WARN] El frame '{nombre}' no existe para este rol.")
+            messagebox.showerror("Acceso denegado", "Vista no permitida para este usuario")
 
     def widgets(self):
         """
@@ -95,8 +97,8 @@ class Container(Frame):
 
         Botones:
             - Ventas: todos los roles.
-            - Inventario, Clientes: admin, empleado, usuario.
-            - Administrar Usuarios: solo admin.
+            - Clientes: admin, empleado, usuario.
+            - Administrar Usuarios, Inventario: solo admin.
             - Cerrar sesión: todos los roles.
         """
         barra = tk.Frame(self, bg="#f1f2f6")
@@ -122,7 +124,7 @@ class Container(Frame):
                    command=lambda: self.show_frame("Clientes")).grid(row=0, column=2, sticky="nsew")
 
         # Botón AdminUsuarios
-        if rol == "admin":
+        if rol in ("admin", "empleado"):
             Button(barra, text="Administrar Usuarios", font="sans 14 bold",
                    command=lambda: self.show_frame("AdminUsuarios")).grid(row=0, column=3, sticky="nsew")
 

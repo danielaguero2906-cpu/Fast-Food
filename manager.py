@@ -16,7 +16,7 @@ Funciones:
 
 from tkinter import *
 from tkinter import ttk
-from login import Login, Registro, Ventas, Inventario, Clientes, AdminUsuarios
+from login import Login, Registro, AdminUsuarios
 from container import Container
 
 

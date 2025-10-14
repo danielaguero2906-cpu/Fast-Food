@@ -1,5 +1,6 @@
 from tkinter import *
 import tkinter as tk
+import customtkinter as ctk
 from tkinter import ttk, messagebox, filedialog
 from traceback import format_tb
 from PIL import Image, ImageTk  
@@ -22,8 +23,9 @@ def conectar_db():
 
 class Inventario(tk.Frame):
     
-    def __init__(self, padre):
+    def __init__(self, padre, controlador):
         super().__init__(padre)
+        self.controlador = controlador
         self.con = None
         self.cur = None
         self.timer_articulos = None
@@ -46,12 +48,12 @@ class Inventario(tk.Frame):
     
     #================================= WIDGETS =================================
     def widgets(self):
-        canvas_articulos = tk.LabelFrame(self, text="Articulos", font="arial 14 bold", bg="#C6D9E3")
-        canvas_articulos.place(x=300, y=10, width=700, height=580)
+        canvas_articulos = tk.LabelFrame(self, text="Articulos", font="arial 14 bold", bg="#2196F3")
+        canvas_articulos.place(x=300, y=10, width=790, height=580)
         
-        self.canvas = tk.Canvas(canvas_articulos, bg="#C6D9E3")
+        self.canvas = tk.Canvas(canvas_articulos, bg="#2196F3")
         self.scrollbar = tk.Scrollbar(canvas_articulos, orient="vertical", command=self.canvas.yview)
-        self.scrollable_frame = tk.Frame(self.canvas, bg="#C6D9E3")
+        self.scrollable_frame = tk.Frame(self.canvas, bg="#2196F3")
         
         self.scrollable_frame.bind(
             "<Configure>",
@@ -64,32 +66,58 @@ class Inventario(tk.Frame):
         self.canvas.pack(side="left", fill="both", expand=True)
         
         # Buscar
-        lblframe_buscar = LabelFrame(self, text="Buscar", font="arial 14 bold", bg="#C6D9E3")
+        lblframe_buscar = tk.LabelFrame(self, text="Buscar", font="arial 14 bold", bg="#2196F3")
         lblframe_buscar.place(x=10, y=10, width=280, height=80)
         self.comboboxbuscar = ttk.Combobox(lblframe_buscar, font="arial 12")
-        self.comboboxbuscar.place(x=5, y=5, width=260, height=40)
+        self.comboboxbuscar.place(x=5, y=5, width=270, height=40)
         self.comboboxbuscar.bind("<<ComboboxSelected>>", self.on_combobox_select)
         self.comboboxbuscar.bind("<KeyRelease>", self.filtrar_articulos)
         
         # Selección
-        lblframe_seleccion = LabelFrame(self, text="Seleccion", font="arial 12", bg="#C6D9E3")
+        lblframe_seleccion = tk.LabelFrame(self, text="Seleccion", font="arial 12", bg="#2196F3")
         lblframe_seleccion.place(x=10, y=95, width=280, height=190)
-        self.label1 = tk.Label(lblframe_seleccion, text="Articulos", font="arial 12", bg="#C6D9E3", wraplength=300)
+        self.label1 = tk.Label(lblframe_seleccion, text="Articulos", font="arial 12", bg="#2196F3", wraplength=300)
         self.label1.place(x=5, y=5)
-        self.label2 = tk.Label(lblframe_seleccion, text="Precio", font="arial 12", bg="#C6D9E3")
+        self.label2 = tk.Label(lblframe_seleccion, text="Precio", font="arial 12", bg="#2196F3")
         self.label2.place(x=5, y=40)
-        self.label3 = tk.Label(lblframe_seleccion, text="Costo", font="arial 12", bg="#C6D9E3")
+        self.label3 = tk.Label(lblframe_seleccion, text="Costo", font="arial 12", bg="#2196F3")
         self.label3.place(x=5, y=70)
-        self.label4 = tk.Label(lblframe_seleccion, text="Stock", font="arial 12", bg="#C6D9E3")
+        self.label4 = tk.Label(lblframe_seleccion, text="Stock", font="arial 12", bg="#2196F3")
         self.label4.place(x=5, y=100)
-        self.label5 = tk.Label(lblframe_seleccion, text="Estado", font="arial 12", bg="#C6D9E3")
+        self.label5 = tk.Label(lblframe_seleccion, text="Estado", font="arial 12", bg="#2196F3")
         self.label5.place(x=5, y=130)
+
+        self.lblframe_botones = ctk.CTkFrame(self, fg_color="#FFFFFF", corner_radius=95, width=280, height=300)
+        self.lblframe_botones.place(x=10, y=290) 
+
+        ctk.CTkLabel(self.lblframe_botones, text="Opciones", font=("Arial", 16, "bold")).pack(pady=100, padx=100)
         
-        # Botones
-        lblframe_botones = LabelFrame(self, bg="#C6D9E3", text="Opciones", font="arial 14 bold")
-        lblframe_botones.place(x=10, y=290, width=280, height=300)
-        tk.Button(lblframe_botones, text="Agregar", font="arial 14 bold", command=self.agregar_articulo).place(x=20, y=20, width=180, height=40)
-        tk.Button(lblframe_botones, text="Editar", font="arial 14 bold", command=self.editar_articulo).place(x=20, y=80, width=180, height=40)
+        btn_agregar = ctk.CTkButton(
+            self.lblframe_botones,
+            text="Agregar",
+            font=("Arial", 14, "bold"),
+            command=self.agregar_articulo,
+            corner_radius=20,
+            fg_color="#2196F3",
+            text_color="white",
+            width=180,
+            height=50
+        )
+        btn_agregar.place(x=50, y=30)
+
+        btn_editar = ctk.CTkButton(
+            self.lblframe_botones,
+            text="Editar",
+            font=("Arial", 14, "bold"),
+            command=self.editar_articulo,
+            corner_radius=20,
+            fg_color="#2196F3",
+            text_color="white",
+            width=180,
+            height=50
+        )
+        btn_editar.place(x=50, y=100)
+
     
     #============================== FUNCIONES IMAGEN ===========================
     def load_image(self):
@@ -207,7 +235,7 @@ class Inventario(tk.Frame):
         top = tk.Toplevel(self)
         top.title("Agregar Articulo")
         top.geometry("700x400+200+50")
-        top.config(bg="#C6D9E3")
+        top.config(bg="#2196F3")
         top.resizable(False, False)
         top.transient(self.master)
         top.grab_set()
@@ -215,18 +243,18 @@ class Inventario(tk.Frame):
         top.lift()
         
         # Entrys e imagen
-        tk.Label(top, text="Articulos:", font="arial 12 bold", bg="#C6D9E3").place(x=20, y=20, width=80, height=25)
+        tk.Label(top, text="Articulos:", font="arial 12 bold", bg="#2196F3").place(x=20, y=20, width=80, height=25)
         entry_articulo = ttk.Entry(top, font="arial 12 bold"); entry_articulo.place(x=120, y=20, width=250, height=30)
-        tk.Label(top, text="Precio:", font="arial 12 bold", bg="#C6D9E3").place(x=20, y=60, width=80, height=25)
+        tk.Label(top, text="Precio:", font="arial 12 bold", bg="#2196F3").place(x=20, y=60, width=80, height=25)
         entry_precio = ttk.Entry(top, font="arial 12 bold"); entry_precio.place(x=120, y=60, width=250, height=30)
-        tk.Label(top, text="Costo:", font="arial 12 bold", bg="#C6D9E3").place(x=20, y=100, width=80, height=25)
+        tk.Label(top, text="Costo:", font="arial 12 bold", bg="#2196F3").place(x=20, y=100, width=80, height=25)
         entry_costo = ttk.Entry(top, font="arial 12 bold"); entry_costo.place(x=120, y=100, width=250, height=30)
-        tk.Label(top, text="Stock:", font="arial 12 bold", bg="#C6D9E3").place(x=20, y=140, width=80, height=25)
+        tk.Label(top, text="Stock:", font="arial 12 bold", bg="#2196F3").place(x=20, y=140, width=80, height=25)
         entry_stock = ttk.Entry(top, font="arial 12 bold"); entry_stock.place(x=120, y=140, width=250, height=30)
-        tk.Label(top, text="Estado:", font="arial 12 bold", bg="#C6D9E3").place(x=20, y=180, width=80, height=25)
+        tk.Label(top, text="Estado:", font="arial 12 bold", bg="#2196F3").place(x=20, y=180, width=80, height=25)
         entry_estado = ttk.Entry(top, font="arial 12 bold"); entry_estado.place(x=120, y=180, width=250, height=30)
-        
-        self.frameimg = tk.Frame(top, bg="white", highlightbackground="gray", highlightthickness=1)
+
+        self.frameimg = tk.Frame(top, bg="white", highlightbackground="#2196F3", highlightthickness=1)
         self.frameimg.place(x=440, y=20, width=200, height=200)
         tk.Button(top, text="Cargar Imagen", font="arial 12 bold", command=self.load_image).place(x=470, y=260, width=150, height=40)
         
@@ -259,6 +287,8 @@ class Inventario(tk.Frame):
                 top.destroy()
                 self.cargar_articulos()
                 self.articulos_combobox()
+                
+                self.master.event_generate("<<ActualizarInventario>>")
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo agregar el articulo: {e}")
         
@@ -283,7 +313,7 @@ class Inventario(tk.Frame):
         top = tk.Toplevel(self)
         top.title("Editar Articulo")
         top.geometry("700x400+200+50")
-        top.config(bg="#C6D9E3")
+        top.config(bg="#2196F3")
         top.resizable(False, False)
         top.transient(self.master)
         top.grab_set()
@@ -292,23 +322,23 @@ class Inventario(tk.Frame):
         
         articulo, precio, costo, stock, estado, image_path = resultado
         
-        tk.Label(top, text="Articulo:", font="arial 12 bold", bg="#C6D9E3").place(x=20, y=20, width=80, height=25)
+        tk.Label(top, text="Articulo:", font="arial 12 bold", bg="#2196F3").place(x=20, y=20, width=80, height=25)
         entry_articulo = ttk.Entry(top, font="arial 12 bold"); entry_articulo.place(x=120, y=20, width=250, height=30)
         entry_articulo.insert(0, articulo)
-        tk.Label(top, text="Precio:", font="arial 12 bold", bg="#C6D9E3").place(x=20, y=60, width=80, height=25)
+        tk.Label(top, text="Precio:", font="arial 12 bold", bg="#2196F3").place(x=20, y=60, width=80, height=25)
         entry_precio = ttk.Entry(top, font="arial 12 bold"); entry_precio.place(x=120, y=60, width=250, height=30)
         entry_precio.insert(0, precio)
-        tk.Label(top, text="Costo:", font="arial 12 bold", bg="#C6D9E3").place(x=20, y=100, width=80, height=25)
+        tk.Label(top, text="Costo:", font="arial 12 bold", bg="#2196F3").place(x=20, y=100, width=80, height=25)
         entry_costo = ttk.Entry(top, font="arial 12 bold"); entry_costo.place(x=120, y=100, width=250, height=30)
         entry_costo.insert(0, costo)
-        tk.Label(top, text="Stock:", font="arial 12 bold", bg="#C6D9E3").place(x=20, y=140, width=80, height=25)
+        tk.Label(top, text="Stock:", font="arial 12 bold", bg="#2196F3").place(x=20, y=140, width=80, height=25)
         entry_stock = ttk.Entry(top, font="arial 12 bold"); entry_stock.place(x=120, y=140, width=250, height=30)
         entry_stock.insert(0, stock)
-        tk.Label(top, text="Estado:", font="arial 12 bold", bg="#C6D9E3").place(x=20, y=180, width=80, height=25)
+        tk.Label(top, text="Estado:", font="arial 12 bold", bg="#2196F3").place(x=20, y=180, width=80, height=25)
         entry_estado = ttk.Entry(top, font="arial 12 bold"); entry_estado.place(x=120, y=180, width=250, height=30)
         entry_estado.insert(0, estado)
         
-        self.frameimg = tk.Frame(top, bg="white", highlightbackground="gray", highlightthickness=1)
+        self.frameimg = tk.Frame(top, bg="white", highlightbackground="#2196F3", highlightthickness=1)
         self.frameimg.place(x=440, y=30, width=200, height=200)
         if image_path and os.path.exists(image_path):
             image = Image.open(image_path)
@@ -317,7 +347,6 @@ class Inventario(tk.Frame):
             self.image_path = image_path
             image_label = tk.Label(self.frameimg, image=self.product_image)
             image_label.pack(expand=True, fill="both")
-        
         tk.Button(top, text="Cargar Imagen", font="arial 12 bold", command=self.load_image).place(x=470, y=260, width=150, height=40)
         
         def guardar():
@@ -347,5 +376,20 @@ class Inventario(tk.Frame):
                 messagebox.showinfo("Exito", "Articulo editado exitosamente")
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo editar el articulo: {e}")
-        
         tk.Button(top, text="Guardar", font="arial 12 bold", command=guardar).place(x=260, y=260 , width=150 , height=40)        
+
+
+        def eliminar(): 
+            confirmar = messagebox.askyesno("Confirmar", f"Desea eliminar el artículo '{selected_item}'?")
+            if not confirmar:
+                return
+            try:
+                self.cur.execute("DELETE FROM articulos WHERE articulo=?", (selected_item,))
+                self.con.commit()
+                self.articulos_combobox()
+                self.cargar_articulos()
+                top.destroy()
+                messagebox.showinfo("Éxito", "Artículo eliminado correctamente")
+            except Exception as e:
+                messagebox.showerror("Error", f"No se pudo eliminar el artículo: {e}") 
+        tk.Button(top, text="Eliminar", font="arial 12 bold", command=eliminar).place(x=40, y=260 , width=150 , height=40)

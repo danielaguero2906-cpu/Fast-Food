@@ -197,24 +197,7 @@ class UsuarioDAO:
     def borrar_usuario(self, usuario_id):
         cursor = self.conn.cursor()
         cursor.execute("DELETE FROM usuarios WHERE id = ?", (usuario_id,))
-        self.conn.commit()
-
-# ---------- Módulos de la app ----------
-class Ventas(tk.Frame):
-    def __init__(self, parent, controlador):
-        super().__init__(parent, bg="#dff9fb")
-        tk.Label(self, text="Módulo de Ventas", font=("Segoe UI", 20, "bold")).pack(pady=30)
-        
-
-class Inventario(tk.Frame):
-    def __init__(self, parent, controlador):
-        super().__init__(parent, bg="#c7ecee")
-        tk.Label(self, text="Módulo de Inventario", font=("Segoe UI", 20, "bold")).pack(pady=30)
-
-class Clientes(tk.Frame):
-    def __init__(self, parent, controlador):
-        super().__init__(parent, bg="#fab1a0")
-        tk.Label(self, text="Módulo de Clientes", font=("Segoe UI", 20, "bold")).pack(pady=30) 
+        self.conn.commit() 
         
 # ---------- Login ----------
 class Login(tk.Frame):
@@ -248,7 +231,7 @@ class Login(tk.Frame):
         sep = tk.Frame(card, bg="#eef2f5", height=2)
         sep.pack(fill="x", padx=40, pady=8)
         tk.Button(card, text="Crear nuevo Usuario",
-                  font=("Segoe UI", 12, "underline"),
+                  font=("Segoe UI", 12,"bold"),
                   bg="#0984e3", fg="white",
                   command=self.ir_registro).pack(pady=6)
 
@@ -381,10 +364,26 @@ class AdminUsuarios(tk.Frame):
 
     def _build(self):
         tk.Label(self, text="Administrar Usuarios", font=("Segoe UI", 20, "bold"), bg="#f5f6fa").pack(pady=10)
+        
+        frame_filtro = tk.Frame(self, bg="#f5f6fa")
+        frame_filtro.pack(pady=5)
+        
+        tk.Label(frame_filtro, text="Buscar usuario:", bg="#f5f6fa", font=("Segoe UI", 10)).pack(side=tk.LEFT, padx=5)
+        self.entry_busqueda = tk.Entry(frame_filtro, width=30)
+        self.entry_busqueda.pack(side=tk.LEFT, padx=5)
+        self.entry_busqueda.bind("<KeyRelease>", lambda e: self.filtrar_usuarios())
+        
+        tk.Button(frame_filtro, text="Buscar", command=self.filtrar_usuarios).pack(side=tk.LEFT, padx=5)
+        tk.Button(frame_filtro, text="Limpiar", command=self.cargar_usuarios).pack(side=tk.LEFT, padx=5)
+
+        # --- LISTA DE USUARIOS ---
         self.listbox = tk.Listbox(self, width=70, height=20)
         self.listbox.pack(pady=10)
+
+        # --- BOTONES DE ACCIÓN ---
         frame_btns = tk.Frame(self, bg="#f5f6fa")
         frame_btns.pack(pady=10)
+
         tk.Button(frame_btns, text="Crear Usuario", command=self.crear_usuario).grid(row=0, column=0, padx=5)
         tk.Button(frame_btns, text="Modificar Usuario", command=self.modificar_usuario).grid(row=0, column=1, padx=5)
         tk.Button(frame_btns, text="Asignar Rol", command=self.asignar_rol).grid(row=0, column=2, padx=5)
@@ -392,6 +391,19 @@ class AdminUsuarios(tk.Frame):
         tk.Button(frame_btns, text="Actualizar Lista", command=self.cargar_usuarios).grid(row=0, column=4, padx=5)
         tk.Button(frame_btns, text="Cerrar Sesión", command=self.cerrar_sesion).grid(row=0, column=5, padx=5)
         self.cargar_usuarios()
+        
+    def filtrar_usuarios(self):
+        filtro = self.entry_busqueda.get().strip().lower()
+        self.listbox.delete(0, tk.END)
+        try:
+            usuarios = self.dao.consultar_usuarios()
+            usuarios_filtrados = [u for u in usuarios if filtro in u[1].lower()]
+            for u in usuarios_filtrados:
+                self.listbox.insert(tk.END, f"{u[0]} - {u[1]} - {u[2]}")
+            if not usuarios_filtrados:
+                self.listbox.insert(tk.END, "No se encontraron usuarios.")
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo aplicar el filtro:\n{e}")
 
     def cargar_usuarios(self):
         self.listbox.delete(0, tk.END)

@@ -44,6 +44,7 @@ class Container(Frame):
         self.cargar_frames_por_rol()
         self.show_frame("Ventas")
         self.bind("<<ClienteAgregado>>", self.actualizar_clientes)
+        self.bind("<<ClienteEliminado>>", self.actualizar_clientes_en_ventas)
 
     def cargar_frames_por_rol(self):
         """
@@ -140,6 +141,12 @@ class Container(Frame):
         if frame_clientes and hasattr(frame_clientes, "cargar_registros"):
             frame_clientes.cargar_registros()
             print("[INFO] Lista de clientes actualizada correctamente.")
+            
+            
+    def actualizar_clientes_en_ventas(self, event=None):
+        frame_ventas = self.frames.get("Ventas")
+        if frame_ventas and hasattr(frame_ventas, "cargar_clientes"):
+            frame_ventas.cargar_clientes()
 
 
 

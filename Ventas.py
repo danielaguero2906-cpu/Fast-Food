@@ -89,17 +89,22 @@ class VentanaPago(tk.Toplevel):
         cambio = monto_abonado - self.total_final
         messagebox.showinfo("Pago exitoso", f"Pago con {self.metodo} realizado.\nCambio: {cambio:.2f} Gs")
 
-        self.destroy()
-        self.parent.registrar_pago(self.metodo, self.total_final)
+        # Llamar al registro de venta
+        self.parent.procesar_pago(monto_abonado, self, self.total_final)
+
 
 class Ventas(tk.Frame):
     def __init__(self,padre, controlador):
         super().__init__(padre)
-        self.numero_factura = self.obtener_numero_factura_actual()
-        self.productos_seleccionados = []
-        self.widgets()
         self.controlador = controlador
         self.padre = padre
+        self.clientes = []
+    
+        
+        self.numero_factura = self.obtener_numero_factura_actual()
+        self.productos_seleccionados = []
+        
+        self.widgets()
         self.cargar_productos()
         self.cargar_clientes()
         self.timer_producto = None
@@ -117,18 +122,6 @@ class Ventas(tk.Frame):
         except Exception as e:
             print("Error obteniendo el numero de factura actual: ", e)
             return 1
-    
-    def cargar_clientes(self):
-        try:
-            conn = conectar_db()
-            c = conn.cursor()
-            c.execute("SELECT nombre FROM clientes")
-            clientes = c.fetchall()           
-            self.clientes = [cliente[0] for cliente in clientes]
-            self.entry_cliente["values"] = self.clientes
-            conn.close()
-        except Exception as e:
-            print("Error cargando clientes: ", e)
             
     def filtrar_clientes(self, event):
         if self.timer_cliente:
@@ -292,6 +285,7 @@ class Ventas(tk.Frame):
         
     def registrar_pago(self, metodo, total_final):
         try:
+            self.procesar_pago(total_final, VentanaPago, total_final)
             messagebox.showinfo("Venta registrada", f"Pago con {metodo}\nTotal cobrado: {total_final:.2f} Gs")
             self.limpiar_campos()
         except Exception as e:
@@ -299,47 +293,47 @@ class Ventas(tk.Frame):
             
     def procesar_pago(self, cantidad_pagada, ventana_pago, total_venta):
         cantidad_pagada = float(cantidad_pagada)
-        cliente = self.entry_cliente.get()
         
         if cantidad_pagada < total_venta:
             messagebox.showerror("Error", "La cantidad pagada es insuficiente.")
             return
-        
+
         cambio = cantidad_pagada - total_venta
-        
-        total_formateado =  "{:,.0f}".format(total_venta)
-        
-        mensaje = f"Total: {total_formateado} \nCantidad Pagada: {cantidad_pagada:,.0f} \nCambio: {cambio:,.0f}"
-        messagebox.showinfo("Pago realizado ", mensaje)
-        
+        messagebox.showinfo("Pago realizado", f"Total: {total_venta:,.0f}\nCambio: {cambio:,.0f}")
+
         try:
             conn = conectar_db()
             c = conn.cursor()
-            
+
             fecha_actual = datetime.datetime.now().strftime("%Y-%m-%d")
             hora_actual = datetime.datetime.now().strftime("%H:%M:%S")
-            
+
             for item in self.productos_seleccionados:
                 factura, cliente, producto, precio, cantidad, total, costo = item
-                c.execute("INSERT INTO ventas (factura, cliente, articulo, precio, cantidad, total, costo, fecha, hora) VALUES (?,?,?,?,?,?,?,?,?)", 
-                    (factura, cliente, producto, precio, cantidad, total.replace(" ", "").replace(",", ""), costo * cantidad, fecha_actual, hora_actual))
+                total_float = float(str(total).replace(",", "").replace(" ", ""))
+                c.execute(
+                    "INSERT INTO ventas (factura, cliente, articulo, precio, cantidad, total, costo, fecha, hora) VALUES (?,?,?,?,?,?,?,?,?)",
+                    (factura, cliente, producto, precio, cantidad, total_float, costo * cantidad, fecha_actual, hora_actual)
+                )
+                # Actualizar stock solo aquí
+                c.execute("UPDATE articulos SET stock = stock - ? WHERE articulo = ?", (cantidad, producto))
 
-                c.execute("UPDATE articulos SET stock = stock - ? WHERE articulo = ? ", (cantidad, producto))
-                
             conn.commit()
-            
-            self.generar_factura_pdf(total_venta, cliente)
+            conn.close()
+
+            # Generar factura PDF
+            self.generar_factura_pdf(total_venta, self.entry_cliente.get())
+            self.numero_factura += 1
+            self.label_numero_factura.config(text=str(self.numero_factura))
+            self.productos_seleccionados.clear()
+            self.limpiar_campos()
 
         except Exception as e:
             messagebox.showerror("Error", f"Error al registrar la venta: {e}")
-            
-        self.numero_factura += 1
-        self.label_numero_factura.config(text=str(self.numero_factura))
-        
-        self.productos_seleccionados = []
-        self.limpiar_campos()
-        
-        ventana_pago.destroy()
+
+        if ventana_pago:
+            ventana_pago.destroy()
+
         
     def limpiar_campos(self):
         for item in self.tre.get_children():
@@ -418,12 +412,7 @@ class Ventas(tk.Frame):
     
     def ver_ventas_realizadas(self):
         try:
-            conn = conectar_db()
-            c = conn.cursor()
-            c.execute(" SELECT * FROM ventas")
-            ventas = c.fetchall()
-            conn.close()
-            
+            # Crear ventana primero
             ventana_ventas = tk.Toplevel(self)
             ventana_ventas.title("Ventas Realizadas")
             ventana_ventas.geometry("1100x650+120+20")
@@ -433,185 +422,160 @@ class Ventas(tk.Frame):
             ventana_ventas.grab_set()
             ventana_ventas.focus_set()
             ventana_ventas.lift()
-            
+
+            # Treeview
+            tree_frame = tk.Frame(ventana_ventas, bg="white")
+            tree_frame.place(x=20, y=130, width=1060, height=500)
+
+            scrol_y = ttk.Scrollbar(tree_frame)
+            scrol_y.pack(side=RIGHT, fill=Y)
+
+            scrol_x = ttk.Scrollbar(tree_frame, orient=HORIZONTAL)
+            scrol_x.pack(side=BOTTOM, fill=X)
+
+            tree = ttk.Treeview(tree_frame, columns=("Factura", "Cliente", "Producto", "Precio", "Cantidad", "Total", "Fecha", "Hora"), show="headings")
+            tree.pack(expand=True, fill=BOTH)
+            scrol_y.config(command=tree.yview)
+            scrol_x.config(command=tree.xview)
+
+            # Configurar columnas (igual que antes)
+            for col in tree["columns"]:
+                tree.heading(col, text=col)
+                tree.column(col, width=100, anchor="center")
+
+            # Función para refrescar los datos desde la DB
+            def refrescar_tree():
+                try:
+                    conn = conectar_db()
+                    c = conn.cursor()
+                    c.execute("SELECT * FROM ventas")
+                    ventas = c.fetchall()
+                    conn.close()
+
+                    # Limpiar Treeview
+                    for item in tree.get_children():
+                        tree.delete(item)
+
+                    # Insertar datos
+                    for venta in ventas:
+                        venta = list(venta)
+                        venta[3] = "{:,.0f}".format(venta[3])
+                        venta[5] = "{:,.0f}".format(venta[5])
+                        fecha = venta[7]
+                        if hasattr(fecha, "strftime"):
+                            venta[7] = fecha.strftime("%d-%m-%Y")
+                        else:
+                            venta[7] = str(fecha)
+                        tree.insert("", "end", values=(venta[0], venta[1], venta[2], venta[3], venta[4], venta[5], venta[6], venta[8]))
+                except Exception as e:
+                    messagebox.showerror("Error", f"No se pudieron cargar las ventas:\n{e}")
+
+            # Botón filtrar
             def filtrar_ventas():
                 factura_a_buscar = entry_factura.get()
                 cliente_a_buscar = entry_cliente.get()
+                refrescar_tree()  # recarga toda la info
+                # luego filtrar los items del treeview
                 for item in tree.get_children():
-                    tree.delete(item)
-                    
-                ventas_filtradas = [
-                    venta for venta in ventas
-                    if (str(venta[0])== factura_a_buscar or not factura_a_buscar) and
-                    (venta[1].lower()== cliente_a_buscar.lower() or not cliente_a_buscar)
-                ]
-                
-                for venta in ventas_filtradas:
-                    venta = list(venta)   
-                    venta[3]= "{:,.0f}".format(venta[3])
-                    venta[5]= "{:,.0f}".format(venta[5])   
-                    fecha = venta[7]
-                    
-                    if hasattr(fecha, "strftime"):
-                        venta[7] = fecha.strftime("%d-%m-%Y")   
-                    else:
-                        venta[7] = datetime.datetime.strptime(str(fecha), "%Y-%m-%d %H:%M:%S.%f").strftime("%d-%m-%Y")
-                    tree.insert("", "end", values=venta)
-                    
-            label_ventas_realizadas = tk.Label(ventana_ventas, text="Ventas Realizadas", font="sans 26 bold", bg="#2196F3")
-            label_ventas_realizadas.place(x=35, y=20)  
-            
+                    values = tree.item(item)["values"]
+                    if (str(values[0]) != factura_a_buscar and factura_a_buscar) or \
+                    (values[1].lower() != cliente_a_buscar.lower() and cliente_a_buscar):
+                        tree.delete(item)
+
+            # Entrys y botón de filtro
             filtro_frame = tk.Frame(ventana_ventas, bg="#2196F3")
-            filtro_frame.place(x=20, y=60, width=1060, height=60) 
-            
-            label_factura = tk.Label(filtro_frame, text= "Numero de factura", bg="#2196F3", font="sans 14 bold")
-            label_factura.place(x=10, y=15)
-            
-            entry_factura = ttk.Entry(filtro_frame, font="sans 14 bold")
+            filtro_frame.place(x=20, y=60, width=1060, height=60)
+
+            tk.Label(filtro_frame, text="Número de factura", bg="#2196F3").place(x=10, y=15)
+            entry_factura = ttk.Entry(filtro_frame)
             entry_factura.place(x=200, y=10, width=200, height=40)
-            
-            label_cliente = tk.Label(filtro_frame, text= "Cliente", bg="#2196F3", font="sans 14 bold")
-            label_cliente.place(x=420, y=15)
-            
-            entry_cliente = ttk.Entry(filtro_frame, font="sans 14 bold")
+
+            tk.Label(filtro_frame, text="Cliente", bg="#2196F3").place(x=420, y=15)
+            entry_cliente = ttk.Entry(filtro_frame)
             entry_cliente.place(x=620, y=10, width=200, height=40)
-            
-            btn_filtrar = tk.Button(filtro_frame, text="Filtrar", font="sans 14 bold", command=filtrar_ventas)
-            btn_filtrar.place(x=840, y=10)
-            
-            tree_frame = tk.Frame(ventana_ventas, bg="white")
-            tree_frame.place(x=20, y=130, width=1060, height=500)
-            
-            scrol_y = ttk.Scrollbar(tree_frame)
-            scrol_y.pack(side=RIGHT, fill=Y)
-            
-            scrol_x = ttk.Scrollbar(tree_frame, orient=HORIZONTAL)
-            scrol_x.pack(side=BOTTOM, fill=X)
-            
-            tree = ttk.Treeview(tree_frame, columns=("Factura", "Cliente", "Producto", "Precio", "Cantidad", "Total", "Fecha", "Hora"), show="headings")
-            tree.pack(expand=True, fill=BOTH)
-            
-            scrol_y.config(command=tree.yview)
-            scrol_x.config(command=tree.xview)
-            
-            tree.heading("Factura", text="Factura")
-            tree.heading("Cliente", text="Cliente")
-            tree.heading("Producto", text="Producto")
-            tree.heading("Precio", text="Precio")
-            tree.heading("Cantidad", text="Cantidad")
-            tree.heading("Total", text="Total")
-            tree.heading("Fecha", text="Fecha")
-            tree.heading("Hora", text="Hora")
-            
-            tree.column("Factura", width=60, anchor="center")
-            tree.column("Cliente", width=120, anchor="center")
-            tree.column("Producto", width=120, anchor="center")
-            tree.column("Precio", width=80, anchor="center")
-            tree.column("Cantidad", width=80, anchor="center")
-            tree.column("Total", width=80, anchor="center")
-            tree.column("Fecha", width=80, anchor="center")
-            tree.column("Hora", width=80, anchor="center")
-            
-            for venta in ventas:
-                venta = list(venta)
-                venta[3] = "{:,.0f}".format(venta[3])
-                venta[5] = "{:,.0f}".format(venta[5]) 
-                fecha = venta[7]
-                if hasattr(fecha, "strftime"):
-                    venta[7] = fecha.strftime("%d-%m-%Y")
-                else:
-                    venta[7] = str(fecha)
-                tree.insert("", "end", values = (venta[0], venta[1], venta[2], venta[3], venta[4], venta[5], venta[6], venta[8]))
+
+            tk.Button(filtro_frame, text="Filtrar", command=filtrar_ventas).place(x=840, y=10)
+
+            # Vincular evento para actualizar automáticamente
+            ventana_ventas.bind("<<VentasActualizadas>>", lambda e: refrescar_tree())
+
+            # Primera carga
+            refrescar_tree()
+
         except Exception as e:
-            messagebox.showerror("Error",f"Error al obtener las ventas: {e}")
-            
+            messagebox.showerror("Error", f"Error al obtener las ventas: {e}")
+
     def generar_factura_pdf(self, total_venta, cliente):
         try:
             os.makedirs("facturas", exist_ok=True)
             factura_path = os.path.join("facturas", f"Factura_{self.numero_factura}.pdf")
 
-            c = canvas.Canvas(factura_path, pagesize = letter)
-            
-            empresa_nombre = "FAST FOOD"
-            empresa_direccion = "Avda Brasilia 1234, Asuncion, Paraguay"
-            empresa_telefono = "+595984135326"
-            empresa_email = "fastfood@ff-fastfood.com.py"
-            empresa_website = "https://www.fastfood.com.py/"
-            
+            c = canvas.Canvas(factura_path, pagesize=letter)
             c.setFont("Helvetica-Bold", 18)
             c.setFillColor(colors.darkblue)
             c.drawCentredString(300, 750, "FACTURA DE VENTA")
-            
+
             c.setFillColor(colors.black)
             c.setFont("Helvetica-Bold", 12)
-            c.drawString(50,710, f"{empresa_nombre}")
+            c.drawString(50,710, "FAST FOOD")
             c.setFont("Helvetica", 12)
-            c.drawString(50,690, f"Direccion: {empresa_direccion}")
-            c.drawString(50,670, f"Telefono: {empresa_telefono}")
-            c.drawString(50,650, f"Email: {empresa_email}")
-            c.drawString(50,630, f"Website: {empresa_website}")
-            
+            c.drawString(50,690, "Direccion: Avda Brasilia 1234, Asuncion, Paraguay")
+            c.drawString(50,670, "Telefono: +595984135326")
+            c.drawString(50,650, "Email: fastfood@ff-fastfood.com.py")
+            c.drawString(50,630, "Website: https://www.fastfood.com.py/")
+
             c.setLineWidth(0.5)
             c.setStrokeColor(colors.gray)
             c.line(50, 620, 550, 620)
-            
+
             c.setFont("Helvetica", 12)
             c.drawString(50,600, f"Numero de Factura: {self.numero_factura}")
             c.drawString(50,580, f"Fecha: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-            
             c.line(50, 560, 550, 560)
-            
             c.drawString(50,540, f"Cliente: {cliente}")
             c.drawString(50,520, "Descripcion de Productos: ")
-            
+
             y_offset = 500
             c.setFont("Helvetica-Bold", 12)
             c.drawString(70, y_offset, "Producto")
             c.drawString(270, y_offset, "Cantidad")
             c.drawString(370, y_offset, "Precio")
             c.drawString(470, y_offset, "Total")
-            
             c.line(50, y_offset - 10, 550, y_offset - 10)
             y_offset -= 30
             c.setFont("Helvetica", 12)
             for item in self.productos_seleccionados:
-                factura, cliente, producto, precio, cantidad, total, costo = item
-                c.setFont("Helvetica-Bold", 12)
+                factura, cliente_nombre, producto, precio, cantidad, total, costo = item
                 c.drawString(70, y_offset, producto)
                 c.drawString(270, y_offset, str(cantidad))
                 c.drawString(370, y_offset, "${:,.2f}".format(precio))
-                c.drawString(470, y_offset, total)    
+                c.drawString(470, y_offset, total)
                 y_offset -= 20
-                
+
             c.line(50, y_offset, 550, y_offset)
             y_offset -= 20
-            
             c.setFont("Helvetica-Bold", 14)
             c.setFillColor(colors.darkblue)
             c.drawString(50, y_offset, f"Total a Pagar: ${total_venta:,.2f}")
             c.setFillColor(colors.black)
             c.setFont("Helvetica", 12)
-            
             y_offset -= 20
             c.line(50, y_offset, 550, y_offset)
-            
             c.setFont("Helvetica-Bold", 16)
-            c.drawString(150, y_offset -60, "Gracias por tu compra.Vuelve pronto")
-            
+            c.drawString(150, y_offset - 60, "Gracias por tu compra. Vuelve pronto")
             y_offset -= 100
             c.setFont("Helvetica", 10)
             c.drawString(50, y_offset, "Terminos y Condiciones:")
-            c.drawString(50, y_offset -20, "1. Los productos entregados no tienen devolucion.")
-            c.drawString(50, y_offset -40, "2. Conserve esta factura como comprobante de tu compra.")
+            c.drawString(50, y_offset - 20, "1. Los productos entregados no tienen devolucion.")
+            c.drawString(50, y_offset - 40, "2. Conserve esta factura como comprobante de tu compra.")
             c.save()
-            
-            messagebox.showinfo("Factura generada", f"Se ha generado la factura en: {factura_path} ") 
-            
+
+            messagebox.showinfo("Factura generada", f"Se ha generado la factura en: {factura_path}")
             os.startfile(os.path.abspath(factura_path))
-            
+
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo generar la factura: {e}")
-                           
+    
     def widgets(self):
        labelframe = tk.LabelFrame(self, font="arial 12 bold", bg="#2196F3")
        labelframe.place(x=25, y=30, width=1045, height=180)
@@ -700,8 +664,7 @@ class Ventas(tk.Frame):
        
        boton_ver_ventas = tk.Button(self, text="Ver Ventas realizadas", font="sans 14 bold", command=self.ver_ventas_realizadas)
        boton_ver_ventas.place(x=290, y=550, width=280, height=40)
-       
-       
+           
     def agregar_y_reiniciar(self):
         """
         Agrega el artículo y luego limpia el campo de cantidad
@@ -774,7 +737,6 @@ class Ventas(tk.Frame):
                 messagebox.showinfo("Éxito", f"Cliente '{nombre}' creado.")
                 popup.destroy()
                 
-                self.cargar_clientes()
                 self.entry_cliente.set(nombre)
                 
                 # Notificar al contenedor que se agregó un cliente nuevo
@@ -782,10 +744,34 @@ class Ventas(tk.Frame):
                 
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo crear el cliente:\n{e}")
-
-
+                
         tk.Button(popup, text="Guardar", command=guardar_cliente).grid(row=2, column=0, columnspan=2, pady=10)
         nombre_entry.focus()
+                
+    def cargar_clientes(self):
+        """Recarga la lista de clientes desde la base de datos en el Combobox"""
+        try:
+            conn = conectar_db()
+            cursor = conn.cursor()
+            cursor.execute("SELECT nombre FROM clientes ORDER BY nombre ASC")
+            nombres = [row[0] for row in cursor.fetchall()]
+            conn.close()
+
+            self.clientes = nombres
+            self.entry_cliente['values'] = nombres  
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudieron cargar los clientes:\n{e}")
+                
+    def finalizar_venta(self):
+        # ...guardar venta en DB
+        self.generar_factura()  # genera factura
+        self.cargar_clientes()   # refresca clientes
+        self.productos_seleccionados.clear()
+        self.limpiar_treeview()
+        
+        # Refrescar ventana de ventas realizadas si está abierta
+        self.master.event_generate("<<VentasActualizadas>>", when="tail")
+      
 
 
    

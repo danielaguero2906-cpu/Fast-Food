@@ -84,7 +84,6 @@ class TestClientes(unittest.TestCase):
 
         with patch("clientes.messagebox.showinfo") as mock_info:
             self.frame.modificar()
-            # Verifica que se haya ejecutado la consulta UPDATE
             found = any("UPDATE clientes" in str(call.args[0]) for call in mock_cursor.execute.call_args_list)
             self.assertTrue(found, "No se encontró la consulta UPDATE.")
             mock_conn.commit.assert_called()
